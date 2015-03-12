@@ -1,0 +1,28 @@
+channel_list:
+  path: /channel/list
+  defaults: { _controller: AppBundle:Channel:list}
+channel_create:
+  path: /channel/create
+  defaults: { _controller: AppBundle:Channel:create }
+channel_delete:
+  path: /channel/delete
+  defaults: { _controller: AppBundle:Channel:delete }
+
+
+
+
+version_create:
+  path: /version/create
+  defaults: { _controller: AppBundle:Version:create }
+version_delete:
+  path: /version/delete
+  defaults: { _controller: AppBundle:Version:delete }
+
+
+
+create_file:
+  path: /file/create
+  defaults: { _controller: AppBundle:File:addFile }
+get_file:
+  path: /file/get
+  defaults: { _controller: AppBundle:File:getFile }
