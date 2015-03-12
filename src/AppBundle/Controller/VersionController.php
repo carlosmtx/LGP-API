@@ -2,9 +2,7 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Document\File\File;
 use AppBundle\Document\Version\Version;
-use AppBundle\Document\Channel\Channel;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,18 +15,17 @@ class VersionController extends Controller
         $name    = $request->request->get('name',false) ;
         $channelId = $request->request->get('channel',false) ;
 
-        if ( !$channelId || !$name ){
+        if ( $channelId === false || $name === false ){
             return new Response('Parameter Missing: name or channel' , 400);
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $repos = $dm->getRepository('AppBundle:Channel\Channel');
 
-
         $channel = $repos->findOneBy(['id' => $channelId]);
 
         if ( !$channel ){
-            return new Response("Channel Not Found: $channel");
+            return new Response("Channel Not Found: $channelId");
         }
 
         $version = new Version();
@@ -47,13 +44,13 @@ class VersionController extends Controller
         $dm->persist($channel);
         $dm->flush();
 
-        return new JsonResponse($version);
+        return new JsonResponse($version->toArray());
     }
 
     public function deleteAction(Request $request){
         $id = $request->request->get('id',false) ;
 
-        if(!$id){
+        if($id === false){
             return new Response('Parameter id missing',400);
         }
 
@@ -80,6 +77,28 @@ class VersionController extends Controller
         $dm->flush();
 
         return new JsonResponse($version);
+    }
+
+
+    public function setCurrentAction(Request $request){
+        $versionId = $request->request->get('version',false) ;
+
+        if ( $versionId === false){
+            return new Response('Parameter: version missing');
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $repos = $dm->getRepository('AppBundle:Version\Version');
+        $version = $repos->findOneBy(['id' => $versionId]);
+
+        if ( !$version){
+            return new Response("Version Not Found: $versionId");
+        }
+
+        $version->getChannel()->setCurrentVersion($version);
+        $dm->persist($version->getChannel());
+        $dm->flush();
+        return new JsonResponse($version->toArray());
     }
 
 }

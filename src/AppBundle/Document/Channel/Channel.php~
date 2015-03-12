@@ -16,20 +16,42 @@ class Channel {
     /**
      * @MongoDB\Id()
      */
-    public $id;
+    protected $id;
     /**
      * @MongoDB\String()
      */
-    public $name;
+    protected $name;
     /**
      * @MongoDB\ReferenceMany(targetDocument="AppBundle\Document\Version\Version")
      */
-    public $version;
+    protected $versions;
     /**
      * @MongoDB\ReferenceOne(targetDocument="AppBundle\Document\Version\Version" , nullable=true)
      */
-    public $currentVersion;
+    protected $currentVersion;
 
+    public function toArray(){
+        /**
+         * @var $ver Version
+         */
+        $versions = [];
+        foreach( $this->getVersions() as $ver) {
+            $versions[] = [
+                'name' => $ver->getName(),
+                'id'   => $ver->getId()
+            ];
+        }
+
+        return [
+            'id'            => $this->getId(),
+            'name'          => $this->getName(),
+            'versions'      => $versions,
+            'currentVersion'=> [
+                'name' => $ver->getName(),
+                'id'   => $ver->getId()
+            ]
+        ];
+    }
 
 
     public function __construct()
@@ -38,89 +60,5 @@ class Channel {
         $this->currentVersion = null;
     }
     
-    /**
-     * Set name
-     *
-     * @param string $name
-     * @return self
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-    /**
-     * Get name
-     *
-     * @return string $name
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Add version
-     *
-     * @param \AppBundle\Document\Version\Version $version
-     */
-    public function addVersion(\AppBundle\Document\Version\Version $version)
-    {
-        $this->version[] = $version;
-    }
-
-    /**
-     * Remove version
-     *
-     * @param \AppBundle\Document\Version\Version $version
-     */
-    public function removeVersion(\AppBundle\Document\Version\Version $version)
-    {
-        $this->version->removeElement($version);
-    }
-
-    /**
-     * Get version
-     *
-     * @return \Doctrine\Common\Collections\Collection $version
-     */
-    public function getVersion()
-    {
-        return $this->version;
-    }
-
-    /**
-     * Set currentVersion
-     *
-     * @param \AppBundle\Document\Version\Version $currentVersion
-     * @return self
-     */
-    public function setCurrentVersion(\AppBundle\Document\Version\Version $currentVersion)
-    {
-        $this->currentVersion = $currentVersion;
-        return $this;
-    }
-
-    /**
-     * Get currentVersion
-     *
-     * @return \AppBundle\Document\Version\Version $currentVersion
-     */
-    public function getCurrentVersion()
-    {
-        return $this->currentVersion;
-    }
-
-    /**
-     * Get id
-     *
-     * @return id $id
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
 
 }

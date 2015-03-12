@@ -67,6 +67,14 @@ class File
         $this->path = $this->getFile()->getClientOriginalName();
     }
 
+    public function toArray(){
+        $retVal = [
+            'created_at' => $this->getCreatedAt(),
+            'name'       => $this->getName(),
+            'id'         => $this->getId()
+        ];
+        return $retVal;
+    }
 
     public function __construct()
     {

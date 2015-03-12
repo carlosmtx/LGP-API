@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class FileController extends Controller
 {
@@ -18,8 +19,12 @@ class FileController extends Controller
      */
     public function addFileAction(Request $request)
     {
-        $version    = $request->request->get('version');
-        $fileUpload = $request->files->get('file');
+        $versionId    = $request->request->get('version',false);
+        $fileUpload = $request->files->get('file',false);
+
+        if ( $versionId === false || $fileUpload === false){
+            return new Response('Paramenter: version or file missing',400);
+        }
 
         $dm       = $this->get('doctrine_mongodb')->getManager();
         $repos    = $dm->getRepository('AppBundle:Version\Version');
@@ -29,10 +34,13 @@ class FileController extends Controller
 
 
         /** @var Version  $version */
-        $version  = $repos->findOneBy(['id' => $version]);
+        $version  = $repos->findOneBy(['id' => $versionId]);
         $channel  = $version->getChannel();
         $channel->getName();
 
+        if ( !$version ){
+            return new Response("Version Not Found: $versionId");
+        }
 
         $version->addFile($file);
         $file->setVersion($version);
@@ -42,19 +50,21 @@ class FileController extends Controller
         $versionName = $version->getName();
         $dir = $root.'/'.$channelName.'/'.$versionName;
 
+        $file->setName($file->getFile()->getClientOriginalName());
         $file->upload($dir);
+
         $dm->persist($version);
         $dm->persist($file);
 
         $dm->flush();
 
-        return new JsonResponse($file);
+        return new JsonResponse($file->toArray());
     }
 
     public function getFileAction(Request $request){
         $fileId = $request->query->get('file',false);
         if ( $fileId === false ){
-
+            return new Response('Parameter: file not found');
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();

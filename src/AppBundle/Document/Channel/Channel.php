@@ -16,20 +16,45 @@ class Channel {
     /**
      * @MongoDB\Id()
      */
-    public $id;
+    protected $id;
     /**
      * @MongoDB\String()
      */
-    public $name;
+    protected $name;
     /**
      * @MongoDB\ReferenceMany(targetDocument="AppBundle\Document\Version\Version")
      */
-    public $version;
+    protected $versions;
     /**
      * @MongoDB\ReferenceOne(targetDocument="AppBundle\Document\Version\Version" , nullable=true)
      */
-    public $currentVersion;
+    protected $currentVersion;
 
+    public function toArray(){
+        /**
+         * @var $ver Version
+         */
+        $versions = [];
+        foreach( $this->getVersions() ?: [] as $ver) {
+            $versions[] = [
+                'name' => $ver->getName(),
+                'id'   => $ver->getId()
+            ];
+        }
+        $retVal = [
+                'id'            => $this->getId(),
+                'name'          => $this->getName(),
+                'versions'      => $versions,
+
+        ];
+        if ( $this->getCurrentVersion() ){
+            $retVal['currentVersion'] = [
+                'name' => $this->getCurrentVersion()->getName(),
+                'id'   => $this->getCurrentVersion()->getId()
+            ];
+        }
+        return $retVal;
+    }
 
 
     public function __construct()
@@ -38,6 +63,18 @@ class Channel {
         $this->currentVersion = null;
     }
     
+
+
+    /**
+     * Get id
+     *
+     * @return id $id
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
     /**
      * Set name
      *
@@ -67,7 +104,7 @@ class Channel {
      */
     public function addVersion(\AppBundle\Document\Version\Version $version)
     {
-        $this->version[] = $version;
+        $this->versions[] = $version;
     }
 
     /**
@@ -77,17 +114,17 @@ class Channel {
      */
     public function removeVersion(\AppBundle\Document\Version\Version $version)
     {
-        $this->version->removeElement($version);
+        $this->versions->removeElement($version);
     }
 
     /**
-     * Get version
+     * Get versions
      *
-     * @return \Doctrine\Common\Collections\Collection $version
+     * @return \Doctrine\Common\Collections\Collection $versions
      */
-    public function getVersion()
+    public function getVersions()
     {
-        return $this->version;
+        return $this->versions;
     }
 
     /**
@@ -111,16 +148,4 @@ class Channel {
     {
         return $this->currentVersion;
     }
-
-    /**
-     * Get id
-     *
-     * @return id $id
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-
 }

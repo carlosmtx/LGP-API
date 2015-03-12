@@ -1,6 +1,9 @@
 channel_list:
   path: /channel/list
   defaults: { _controller: AppBundle:Channel:list}
+channel_list_files:
+  path: /channel/list/files
+  defaults: { _controller: AppBundle:Channel:listFiles }
 channel_create:
   path: /channel/create
   defaults: { _controller: AppBundle:Channel:create }
@@ -10,19 +13,19 @@ channel_delete:
 
 
 
-
 version_create:
   path: /version/create
   defaults: { _controller: AppBundle:Version:create }
 version_delete:
   path: /version/delete
   defaults: { _controller: AppBundle:Version:delete }
-
-
+version_current:
+  path: /version/current/set
+  defaults: { _controller: AppBundle:Version:setCurrent }
 
 create_file:
   path: /file/create
   defaults: { _controller: AppBundle:File:addFile }
 get_file:
-  path: /file/get
+  path: /file
   defaults: { _controller: AppBundle:File:getFile }

@@ -151,4 +151,48 @@ class File
     }
 
 
+
+    /**
+     * Set createdAt
+     *
+     * @param date $createdAt
+     * @return self
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return date $createdAt
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Set version
+     *
+     * @param \AppBundle\Document\Version\Version $version
+     * @return self
+     */
+    public function setVersion(\AppBundle\Document\Version\Version $version)
+    {
+        $this->version = $version;
+        return $this;
+    }
+
+    /**
+     * Get version
+     *
+     * @return \AppBundle\Document\Version\Version $version
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
 }

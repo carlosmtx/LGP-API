@@ -22,7 +22,6 @@ class Version {
      * @MongoDB\String()
      */
     public $name;
-
     /**
      * @MongoDB\ReferenceMany(targetDocument="AppBundle\Document\File\File")
      */
@@ -31,6 +30,26 @@ class Version {
      * @MongoDB\ReferenceOne(targetDocument="AppBundle\Document\Channel\Channel")
      */
     public $channel;
+
+    public function toArray(){
+
+        $retVal = [
+            'id'  => $this->getId(),
+            'name'=> $this->getName(),
+        ];
+        /**
+         * @var $file File
+         */
+        $retVal['files'] = [];
+        foreach ( $this->files ?: [] as $file ){
+            $retVal['files'][] = [
+                'id'   => $file->getId(),
+                'name' => $file->getName(),
+            ];
+        }
+
+        return $retVal;
+    }
 
     public function __construct()
     {
