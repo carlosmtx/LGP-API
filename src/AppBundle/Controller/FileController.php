@@ -23,7 +23,7 @@ class FileController extends Controller
         $fileUpload = $request->files->get('file',false);
 
         if ( $versionId === false || $fileUpload === false){
-            return new Response('Paramenter: version or file missing',400);
+            return new Response('Parameter: version or file missing',400);
         }
 
         $dm       = $this->get('doctrine_mongodb')->getManager();

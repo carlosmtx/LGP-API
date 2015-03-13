@@ -1,15 +1,15 @@
 channel_list:
   path: /channel/list
   defaults: { _controller: AppBundle:Channel:list}
-channel_list_files:
-  path: /channel/list/files
-  defaults: { _controller: AppBundle:Channel:listFiles }
 channel_create:
   path: /channel/create
   defaults: { _controller: AppBundle:Channel:create }
 channel_delete:
   path: /channel/delete
   defaults: { _controller: AppBundle:Channel:delete }
+channel_list_files:
+  path: /channel/list/files
+  defaults: { _controller: AppBundle:Channel:listFiles }
 
 
 

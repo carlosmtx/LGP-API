@@ -94,6 +94,7 @@ class ChannelController extends Controller
 
         $root = $this->container->getParameter('upload_root_dir');
         $fs = new Filesystem();
+
         $fs->remove("$root/{$channel->getName()}");
 
 
