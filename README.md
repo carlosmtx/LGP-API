@@ -1,48 +1,68 @@
-lgp
-===
-
-A Symfony project created on March 7, 2015, 7:41 pm.
-
-
 Available Routes
 
-- /channel/list
+- **/channel/list
  
-  Parameters: none
-  
   Lists all the available channels
 
-- /channel/create
-   
-  Parameters[POST]: name(string)
+  Parameters: none
   
+- /channel/create
+ 
   Creates a new Channel named 'name'
    
+  Parameters[POST]
+    
+    name: the name of the new channel
+   
 - /channel/delete
+ 
+  Deletes the Channel by it's 'id'  
+  
+  Parameters[POST]
+  
+     id: The id of the channel to be deleted  
+  
 
-  Parameters[POST]:  
+- /channel/list/files
+    
+  Lists the files in the current version of channel 
+  
+  Parameters[POST] 
+    channel : the id of the channel
 
-  Deletes the Channel  by id  
+- /version/create
 
-channel_list_files:
-  path: /channel/list/files
-  defaults: { _controller: AppBundle:Channel:listFiles }
+ Creates a version associated with a channel
+  
+ Parameters:[POST]
+     channel: the id of the channel
+     name   : the name of the version that is going to be created
 
+- /version/delete
 
+    Deletes a version
+    
+    Parameters:[POST]
+      version: the version to be deleted
+     
+- /version/current/set
 
-version_create:
-  path: /version/create
-  defaults: { _controller: AppBundle:Version:create }
-version_delete:
-  path: /version/delete
-  defaults: { _controller: AppBundle:Version:delete }
-version_current:
-  path: /version/current/set
-  defaults: { _controller: AppBundle:Version:setCurrent }
+  Sets the version as the channel current version
 
-create_file:
-  path: /file/create
-  defaults: { _controller: AppBundle:File:addFile }
-get_file:
-  path: /file
-  defaults: { _controller: AppBundle:File:getFile }
+  Parameters:[POST]
+    version: version
+    
+- /file/create
+
+   Creates a file 
+
+   Parameters:[POST]
+     version: id da versao à qual o ficheiro vai ser adicionado
+     file: ficheiro a ser submetido
+- /file
+
+   Returns the file with by it's id
+   
+   Parameters[GET]
+    file: file id 
+  
