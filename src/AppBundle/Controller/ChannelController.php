@@ -134,8 +134,6 @@ class ChannelController extends Controller
         }
 
         return new JsonResponse($files);
-
-
     }
 
 }
