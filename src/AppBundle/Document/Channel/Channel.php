@@ -35,7 +35,7 @@ class Channel {
          * @var $ver Version
          */
         $versions = [];
-        foreach( $this->getVersions() ?: [] as $ver) {
+        foreach( $this->getVersions() as $ver) {
             $versions[] = [
                 'name' => $ver->getName(),
                 'id'   => $ver->getId()

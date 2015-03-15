@@ -52,15 +52,14 @@ class ChannelController extends Controller
         /**
          * @var Cursor $channels
          */
-        $channels = $repos
+        $channels_ = $repos
                     ->createQueryBuilder()
-                    ->select('name')
                     ->getQuery()
                     ->execute();
-        $channels_ = $channels->toArray();
-        $channels  = [];
-        foreach ($channels_ as $channel) {
-            $channels[] = $channel->toArray();
+        $channels = [];
+        /** @var \Doctrine\ODM\MongoDB\Cursor $channels */
+        foreach($channels_ as $channel){
+            $channels[]  = $channel->toArray();
         }
 
         return new  JsonResponse($channels);
