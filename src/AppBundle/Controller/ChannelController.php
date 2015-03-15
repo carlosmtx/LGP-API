@@ -105,7 +105,7 @@ class ChannelController extends Controller
     }
 
     public function listFilesAction(Request $request){
-        $channelId = $request->request->get('channel',false);
+        $channelId = $request->query->get('channel',false);
 
         if($channelId === false){
             return new Response('Parameter id missing',400);
