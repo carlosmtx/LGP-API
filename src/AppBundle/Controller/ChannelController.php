@@ -23,6 +23,11 @@ class ChannelController extends Controller
         $name = $request->request->get('name',false);
 
         if(!$name){
+            $request = json_decode($request->getContent(), true);
+            $name = $request['name'];
+        }
+
+        if(!$name){
             return new Response('Parameter "name" missing' , 400);
         }
 
@@ -73,6 +78,10 @@ class ChannelController extends Controller
     public function deleteAction(Request $request)
     {
         $id = $request->request->get('id',false) ;
+
+        if(!$id){
+            $request->request->all();
+        }
 
         if(!$id){
             return new Response('Parameter id missing',400);
