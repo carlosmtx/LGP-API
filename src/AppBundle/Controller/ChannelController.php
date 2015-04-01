@@ -81,7 +81,7 @@ class ChannelController extends Controller
 
         if(!$channelId){
             $request = json_decode($request->getContent(), true);
-            $channelId = $request['channelId'];
+            $channelId = $request['channel'];
         }
 
         if(!$channelId){
