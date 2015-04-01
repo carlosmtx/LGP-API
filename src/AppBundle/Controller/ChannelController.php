@@ -95,7 +95,7 @@ class ChannelController extends Controller
             return new Response("Channel: $id doesn't exist",400);
         }
 
-        foreach( $channel->getVersion() as $version ){
+        foreach( $channel->getVersions() as $version ){
             $dm->remove($version);
         }
 
@@ -143,6 +143,27 @@ class ChannelController extends Controller
         }
 
         return new JsonResponse($files);
+    }
+
+    public function listVersionsAction(Request $request)
+    {
+        $channelId = $request->query->get('channel',false);
+
+        if($channelId === false){
+            return new Response('Parameter id missing',400);
+        }
+
+        $manager = $this->get('doctrine_mongodb')->getManager();
+        $repos   = $manager->getRepository('AppBundle:Channel\Channel');
+        /** @var Channel $channel */
+        $channel = $repos->findOneBy(['id' => $channelId ]);
+        $channels = [];
+
+        foreach($channel->getVersions()?: [] as $channel){
+            $channels[]  = $channel->toArray();
+        }
+
+        return new JsonResponse($channels);
     }
 
 }

@@ -10,6 +10,9 @@ channel_delete:
 channel_list_files:
   path: /channel/list/files
   defaults: { _controller: AppBundle:Channel:listFiles }
+channel_list_versions:
+  path: /channel/list/versions
+  defaults: { _controller: AppBundle:Channel:listVersions }
 
 
 
