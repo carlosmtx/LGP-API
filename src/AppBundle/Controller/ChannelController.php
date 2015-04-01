@@ -77,22 +77,23 @@ class ChannelController extends Controller
      */
     public function deleteAction(Request $request)
     {
-        $id = $request->request->get('id',false) ;
+        $channelId = $request->request->get('channel',false) ;
 
-        if(!$id){
-            $request->request->all();
+        if(!$channelId){
+            $request = json_decode($request->getContent(), true);
+            $channelId = $request['channelId'];
         }
 
-        if(!$id){
-            return new Response('Parameter id missing',400);
+        if(!$channelId){
+            return new Response('Parameter channel missing',400);
         }
 
         $dm       = $this->get('doctrine_mongodb')->getManager();
         $repos    = $dm->getRepository('AppBundle:Channel\Channel');
-        $channel  = $repos->findOneBy(['id' => $id]);
+        $channel  = $repos->findOneBy(['id' => $channelId]);
 
         if ( $channel === false ){
-            return new Response("Channel: $id doesn't exist",400);
+            return new Response("Channel: $channelId doesn't exist",400);
         }
 
         foreach( $channel->getVersions() as $version ){
