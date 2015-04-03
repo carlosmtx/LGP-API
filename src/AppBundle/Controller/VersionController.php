@@ -15,6 +15,14 @@ class VersionController extends Controller
         $name    = $request->request->get('name',false) ;
         $channelId = $request->request->get('channel',false) ;
 
+        if($channelId === false || $name === false){
+            $request = json_decode($request->getContent(), true);
+            $channelId = $request['channel'];
+            $name = $request['name'];
+        }
+
+
+
         if ( $channelId === false || $name === false ){
             return new Response('Parameter Missing: name or channel' , 400);
         }
@@ -50,9 +58,16 @@ class VersionController extends Controller
     public function deleteAction(Request $request){
         $id = $request->request->get('id',false) ;
 
+        if($id === false ){
+            $request = json_decode($request->getContent(), true);
+            $id = $request['id'];
+        }
+
         if($id === false){
             return new Response('Parameter id missing',400);
         }
+
+
 
         $dm       = $this->get('doctrine_mongodb')->getManager();
         $repos    = $dm->getRepository('AppBundle:Version\Version');

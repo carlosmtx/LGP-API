@@ -79,12 +79,12 @@ class ChannelController extends Controller
     {
         $channelId = $request->request->get('channel',false) ;
 
-        if(!$channelId){
+        if($channelId === false){
             $request = json_decode($request->getContent(), true);
             $channelId = $request['channel'];
         }
 
-        if(!$channelId){
+        if($channelId === false){
             return new Response('Parameter channel missing',400);
         }
 
