@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Document\File\File;
 use AppBundle\Document\Version\Version;
+use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,11 +20,12 @@ class FileController extends Controller
      */
     public function addFileAction(Request $request)
     {
-        $versionId    = $request->request->get('version',false);
+        /** @var DocumentRepository $repos */
+        $versionId  = $request->request->get('version',false);
         $fileUpload = $request->files->get('file',false);
 
         if ( $versionId === false || $fileUpload === false){
-            return new Response('Parameter: version or file missing',400);
+            return new Response('Parameter: \'version\' or \'file\' missing',400);
         }
 
         $dm       = $this->get('doctrine_mongodb')->getManager();
@@ -62,11 +64,13 @@ class FileController extends Controller
     }
 
     public function getFileAction(Request $request){
+        /** @var DocumentRepository $repos */
+        /** @var  File $file */
         $fileId = $request->query->get('file',false);
-        if ( $fileId === false ){
-            return new Response('Parameter: file not found');
-        }
 
+        if ( $fileId === false ){
+            return new Response('Parameter: \'file\' not found');
+        }
         $dm = $this->get('doctrine_mongodb')->getManager();
         $repos = $dm->getRepository('AppBundle:File\File');
 
