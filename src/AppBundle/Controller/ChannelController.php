@@ -5,6 +5,7 @@ namespace AppBundle\Controller;
 use AppBundle\Document\Channel\Channel;
 use AppBundle\Document\File\File;
 use Doctrine\MongoDB\Cursor;
+use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,17 +19,17 @@ class ChannelController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function createAction(Request $request){
+    public function createChannelAction(Request $request){
 
         $name = $request->request->get('name',false);
 
-        if(!$name){
+        if($name === false){
             $request = json_decode($request->getContent(), true);
             $name = $request['name'];
         }
 
         if(!$name){
-            return new Response('Parameter "name" missing' , 400);
+            return new Response('Parameter \'name\' missing' , 400);
         }
 
         $channel = new Channel();
@@ -50,7 +51,7 @@ class ChannelController extends Controller
      * This Action Returns all the Channels available
      * @return JsonResponse
      */
-    public function listAction()
+    public function listChannelsAction()
     {
         /** @var \Doctrine\ODM\MongoDB\DocumentRepository $repos */
         $repos    = $this->get('doctrine_mongodb')->getManager()->getRepository('AppBundle:Channel\Channel');
@@ -62,7 +63,7 @@ class ChannelController extends Controller
                     ->getQuery()
                     ->execute();
         $channels = [];
-        /** @var \Doctrine\ODM\MongoDB\Cursor $channels */
+        /** @var Channel $channel */
         foreach($channels_ as $channel){
             $channels[]  = $channel->toArray();
         }
@@ -75,7 +76,7 @@ class ChannelController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function deleteAction(Request $request)
+    public function deleteChannelAction(Request $request)
     {
         $channelId = $request->request->get('channel',false) ;
 
@@ -85,9 +86,9 @@ class ChannelController extends Controller
         }
 
         if($channelId === false){
-            return new Response('Parameter channel missing',400);
+            return new Response('Parameter \'channel\' missing',400);
         }
-
+        /** @var DocumentRepository $repos */
         $dm       = $this->get('doctrine_mongodb')->getManager();
         $repos    = $dm->getRepository('AppBundle:Channel\Channel');
         $channel  = $repos->findOneBy(['id' => $channelId]);
@@ -113,13 +114,19 @@ class ChannelController extends Controller
         return new JsonResponse($channel->toArray());
     }
 
-    public function listFilesAction(Request $request){
+    public function listChannelFilesAction(Request $request){
         $channelId = $request->query->get('channel',false);
 
         if($channelId === false){
-            return new Response('Parameter id missing',400);
+            $request = json_decode($request->getContent(), true);
+            $channelId = $request['channel'];
         }
 
+        if($channelId === false){
+            return new Response('Parameter \'channel\' missing',400);
+        }
+        /** @var DocumentRepository $repos */
+        /** @var Channel $channel */
         $manager = $this->get('doctrine_mongodb')->getManager();
         $repos   = $manager->getRepository('AppBundle:Channel\Channel');
         $channel = $repos->findOneBy(['id' => $channelId ]);
@@ -128,7 +135,6 @@ class ChannelController extends Controller
             return new Response("Channel Not Found: $channelId",400);
         }
         $channel->getCurrentVersion();
-
         $current = $channel->getCurrentVersion();
 
         if ( !$current ){
@@ -146,17 +152,23 @@ class ChannelController extends Controller
         return new JsonResponse($files);
     }
 
-    public function listVersionsAction(Request $request)
+    public function listChannelVersionsAction(Request $request)
     {
         $channelId = $request->query->get('channel',false);
 
         if($channelId === false){
-            return new Response('Parameter id missing',400);
+            $request = json_decode($request->getContent(), true);
+            $channelId = $request['channel'];
         }
 
+        if($channelId === false){
+            return new Response('Parameter \'channel\' missing',400);
+        }
+
+        /** @var Channel $channel */
+        /** @var DocumentRepository $repos */
         $manager = $this->get('doctrine_mongodb')->getManager();
         $repos   = $manager->getRepository('AppBundle:Channel\Channel');
-        /** @var Channel $channel */
         $channel = $repos->findOneBy(['id' => $channelId ]);
         $channels = [];
 
