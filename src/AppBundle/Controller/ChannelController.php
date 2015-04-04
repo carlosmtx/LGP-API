@@ -21,11 +21,11 @@ class ChannelController extends Controller
      */
     public function createChannelAction(Request $request){
 
-        $name = $request->request->get('name',false);
+        $name = $request->request->get('channel',false);
 
         if($name === false){
             $request = json_decode($request->getContent(), true);
-            $name = $request['name'];
+            $name = $request['channel'];
         }
 
         if(!$name){

@@ -16,7 +16,7 @@ class VersionController extends Controller
     public function createAction(Request $request){
         /** @var DocumentRepository  $repos */
         /** @var Channel $channel */
-        $name    = $request->request->get('name',false) ;
+        $name    = $request->request->get('version',false) ;
         $channelId = $request->request->get('channel',false) ;
 
         if($channelId === false || $name === false){
