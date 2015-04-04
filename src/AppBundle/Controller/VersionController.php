@@ -2,7 +2,9 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Document\Channel\Channel;
 use AppBundle\Document\Version\Version;
+use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,19 +14,19 @@ use Symfony\Component\HttpFoundation\Response;
 class VersionController extends Controller
 {
     public function createAction(Request $request){
+        /** @var DocumentRepository  $repos */
+        /** @var Channel $channel */
         $name    = $request->request->get('name',false) ;
         $channelId = $request->request->get('channel',false) ;
 
         if($channelId === false || $name === false){
             $request = json_decode($request->getContent(), true);
-            $channelId = $request['channel'];
             $name = $request['name'];
+            $channelId = $request['channel'];
         }
 
-
-
         if ( $channelId === false || $name === false ){
-            return new Response('Parameter Missing: name or channel' , 400);
+            return new Response('Parameter \'name\' or \'channel\' missing' , 400);
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -56,26 +58,26 @@ class VersionController extends Controller
     }
 
     public function deleteAction(Request $request){
-        $id = $request->request->get('id',false) ;
+        /** @var DocumentRepository  $repos */
 
-        if($id === false ){
+        $versionId = $request->request->get('version',false) ;
+
+        if($versionId === false ){
             $request = json_decode($request->getContent(), true);
-            $id = $request['id'];
+            $versionId = $request['version'];
         }
 
-        if($id === false){
-            return new Response('Parameter id missing',400);
+        if($versionId === false){
+            return new Response('Parameter: \'version\' missing',400);
         }
-
-
 
         $dm       = $this->get('doctrine_mongodb')->getManager();
         $repos    = $dm->getRepository('AppBundle:Version\Version');
         /** @var Version  $version */
-        $version  = $repos->findOneBy(['id' => $id]);
+        $version  = $repos->findOneBy(['id' => $versionId]);
 
         if ( !$version ){
-            return new Response("Version: $id not found",400);
+            return new Response("Version: $versionId not found",400);
         }
         $channel = $version->getChannel();
         $channel->removeVersion($version);
@@ -96,9 +98,16 @@ class VersionController extends Controller
 
 
     public function setCurrentAction(Request $request){
+        /** @var DocumentRepository  $repos */
+
         $versionId = $request->request->get('version',false) ;
 
-        if ( $versionId === false){
+        if($versionId === false ){
+            $request = json_decode($request->getContent(), true);
+            $versionId = $request['version'];
+        }
+
+        if($versionId === false){
             return new Response('Parameter: version missing');
         }
 
@@ -106,7 +115,7 @@ class VersionController extends Controller
         $repos = $dm->getRepository('AppBundle:Version\Version');
         $version = $repos->findOneBy(['id' => $versionId]);
 
-        if ( !$version){
+        if(!$version){
             return new Response("Version Not Found: $versionId");
         }
 
