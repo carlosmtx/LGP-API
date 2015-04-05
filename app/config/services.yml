@@ -7,8 +7,15 @@ services:
 #    service_name:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+  file_system_provider:
+    class: Symfony\Component\Filesystem\Filesystem
+    arguments: []
+  file_system_manager:
+    class: AppBundle\Service\FileSystem\FileSystem
+    arguments: [@file_system_provider,%upload_root_dir%]
 
-  channel_form_type:
-    class: AppBundle\Form\ChannelType
+  channel.onCreate:
+    class: AppBundle\Service\EventSubscriber\ChannelSubscriber
+    arguments: [@file_system_manager]
     tags:
-      - {name: form.type }
+      - { name:  doctrine_mongodb.odm.event_subscriber}

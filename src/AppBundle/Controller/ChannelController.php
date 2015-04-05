@@ -19,31 +19,26 @@ class ChannelController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function createChannelAction(Request $request){
-
-        $name = $request->request->get('channel',false);
-
-        if($name === false){
-            $request = json_decode($request->getContent(), true);
-            $name = $request['channel'];
-        }
-
+    public function createChannelAction(Request $request, $name){
+        /** @var \Doctrine\ODM\MongoDB\DocumentRepository $repos */
         if(!$name){
             return new Response('Parameter \'name\' missing' , 400);
         }
 
         $channel = new Channel();
         $channel->setName($name);
-
         $dm = $this->get('doctrine_mongodb')->getManager();
+        $repos = $dm->getRepository('AppBundle:Channel\Channel');
+        $channel_ = $repos->findOneBy(["name"=> $name]);
+
         $dm->persist($channel);
         $dm->flush();
 
-        $root = $this->container->getParameter('upload_root_dir');
-        $fs = new Filesystem();
-        $fs->mkdir("$root/{$channel->getName()}/",0777);
+        if ( $channel_ ){
+            return new JsonResponse($channel->toArray(),200);
+        }
 
-        return new JsonResponse($channel->toArray());
+        return new JsonResponse($channel->toArray(),201);
     }
 
 
@@ -55,9 +50,7 @@ class ChannelController extends Controller
     {
         /** @var \Doctrine\ODM\MongoDB\DocumentRepository $repos */
         $repos    = $this->get('doctrine_mongodb')->getManager()->getRepository('AppBundle:Channel\Channel');
-        /**
-         * @var Cursor $channels
-         */
+        /** @var Cursor $channels */
         $channels_ = $repos
                     ->createQueryBuilder()
                     ->getQuery()
@@ -76,37 +69,20 @@ class ChannelController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function deleteChannelAction(Request $request)
+    public function deleteChannelAction(Request $request,$name)
     {
-        $channelId = $request->request->get('channel',false) ;
-
-        if($channelId === false){
-            $request = json_decode($request->getContent(), true);
-            $channelId = $request['channel'];
-        }
-
-        if($channelId === false){
-            return new Response('Parameter \'channel\' missing',400);
-        }
         /** @var DocumentRepository $repos */
         $dm       = $this->get('doctrine_mongodb')->getManager();
         $repos    = $dm->getRepository('AppBundle:Channel\Channel');
-        $channel  = $repos->findOneBy(['id' => $channelId]);
+        $channel  = $repos->findOneBy(['name' => $name]);
 
-        if ( $channel === false ){
-            return new Response("Channel: $channelId doesn't exist",400);
+        if ( ! $channel ){
+            return new Response("Channel: $name doesn't exist",400);
         }
 
         foreach( $channel->getVersions() as $version ){
             $dm->remove($version);
         }
-
-
-        $root = $this->container->getParameter('upload_root_dir');
-        $fs = new Filesystem();
-
-        $fs->remove("$root/{$channel->getName()}");
-
 
         $dm->remove($channel);
         $dm->flush();

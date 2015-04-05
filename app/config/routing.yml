@@ -1,12 +1,15 @@
-channel_list:
-  path: /channel/list
-  defaults: { _controller: AppBundle:Channel:listChannels}
 channel_create:
-  path: /channel/create
+  path: /channel/{name}
   defaults: { _controller: AppBundle:Channel:createChannel }
+  methods: [PUT]
+channel_list:
+  path: /channel
+  defaults: { _controller: AppBundle:Channel:listChannels}
+  methods: [GET]
 channel_delete:
-  path: /channel/delete
+  path: /channel/{name}
   defaults: { _controller: AppBundle:Channel:deleteChannel }
+  methods: [DELETE]
 channel_list_files:
   path: /channel/list/files
   defaults: { _controller: AppBundle:Channel:listChannelFiles }

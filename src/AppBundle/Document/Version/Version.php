@@ -7,6 +7,7 @@
 
 namespace AppBundle\Document\Version;
 
+use AppBundle\Document\Channel\Channel;
 use AppBundle\Document\File\File;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 
@@ -121,10 +122,10 @@ class Version {
     /**
      * Set channel
      *
-     * @param \AppBundle\Document\Channel\Channel $channel
+     * @param Channel $channel
      * @return self
      */
-    public function setChannel(\AppBundle\Document\Channel\Channel $channel)
+    public function setChannel(Channel $channel)
     {
         $this->channel = $channel;
         return $this;
@@ -133,7 +134,7 @@ class Version {
     /**
      * Get channel
      *
-     * @return \AppBundle\Document\Channel\Channel $channel
+     * @return Channel $channel
      */
     public function getChannel()
     {

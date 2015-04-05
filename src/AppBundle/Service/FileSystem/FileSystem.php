@@ -9,20 +9,28 @@ namespace AppBundle\Service\FileSystem;
 
 
 class FileSystem {
+    /** @var  \Symfony\Component\Filesystem\Filesystem */
+    private $fileSystem;
+    private $rootDir;
 
-    public function __construct(){
+    public function __construct($fileSystem,$rootDir){
+        $this->fileSystem = $fileSystem;
+        $this->rootDir = $rootDir;
+    }
+
+    public function createChannelDir($channelName){
+        $this->fileSystem->mkdir("{$this->rootDir}/{$channelName}/",0777);
+    }
+    public function removeChannelDir($channelName){
+        $this->fileSystem->remove("{$this->rootDir}/{$channelName}/");
+    }
+
+
+    public function createVersion($channelName,$versionName){
 
     }
 
-    public function createChannel(){
-
-    }
-
-    public function createVersion(){
-
-    }
-
-    public function createFile(){
+    public function createFile($channelName,$versionName,$fileName){
 
     }
 
@@ -36,6 +44,10 @@ class FileSystem {
     }
 
     public function deleteFile(){
+
+    }
+
+    private function createName($object){
 
     }
 
