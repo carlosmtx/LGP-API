@@ -26,8 +26,11 @@ class FileSystem {
     }
 
 
-    public function createVersion($channelName,$versionName){
-
+    public function createVersionDir($channelName,$versionName){
+        $this->fileSystem->mkdir("{$this->rootDir}/{$channelName}/{$versionName}",0777);
+    }
+    public function removeVersionDir($channelName,$versionName){
+        $this->fileSystem->remove("{$this->rootDir}/{$channelName}/{$versionName}",0777);
     }
 
     public function createFile($channelName,$versionName,$fileName){

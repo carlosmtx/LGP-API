@@ -2,36 +2,49 @@ channel_create:
   path: /channel/{name}
   defaults: { _controller: AppBundle:Channel:createChannel }
   methods: [PUT]
-channel_list:
-  path: /channel
-  defaults: { _controller: AppBundle:Channel:listChannels}
-  methods: [GET]
+
 channel_delete:
   path: /channel/{name}
   defaults: { _controller: AppBundle:Channel:deleteChannel }
   methods: [DELETE]
-channel_list_files:
-  path: /channel/list/files
-  defaults: { _controller: AppBundle:Channel:listChannelFiles }
-channel_list_versions:
-  path: /channel/list/versions
-  defaults: { _controller: AppBundle:Channel:listChannelVersions }
 
+channel_list:
+  path: /channel
+  defaults: { _controller: AppBundle:Channel:listChannels}
+  methods: [GET]
+
+channel_versions_list:
+  path: /channel/{name}/version
+  defaults: { _controller: AppBundle:Channel:listChannelVersions }
+  methods: [GET]
+
+channel_current_list:
+  path: /channel/{cname}/current
+  defaults: { _controller: AppBundle:Channel:listCurrentVersion }
+  methods: [GET]
+
+channel_current_set:
+  path: /channel/{cname}/current/{vname}
+  defaults: { _controller: AppBundle:Channel:setCurrentVersion }
+  methods: [PUT]
 
 
 version_create:
-  path: /version/create
-  defaults: { _controller: AppBundle:Version:create }
+  path: channel/{cname}/version/{vname}
+  defaults: { _controller: AppBundle:Version:createVersion }
+  methods: [PUT]
+
 version_delete:
-  path: /version/delete
+  path: channel/{cname}/version/{vname}
   defaults: { _controller: AppBundle:Version:delete }
-version_current:
-  path: /version/current/set
-  defaults: { _controller: AppBundle:Version:setCurrent }
+  methods: [DELETE]
+
+
 
 create_file:
   path: /file/create
   defaults: { _controller: AppBundle:File:addFile }
+
 get_file:
   path: /file
   defaults: { _controller: AppBundle:File:getFile }

@@ -14,8 +14,13 @@ services:
     class: AppBundle\Service\FileSystem\FileSystem
     arguments: [@file_system_provider,%upload_root_dir%]
 
-  channel.onCreate:
+  channel.subscriber:
     class: AppBundle\Service\EventSubscriber\ChannelSubscriber
+    arguments: [@file_system_manager]
+    tags:
+      - { name:  doctrine_mongodb.odm.event_subscriber}
+  version.subscriber:
+    class: AppBundle\Service\EventSubscriber\VersionSubscriber
     arguments: [@file_system_manager]
     tags:
       - { name:  doctrine_mongodb.odm.event_subscriber}

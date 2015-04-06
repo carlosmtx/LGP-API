@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Document\Channel\Channel;
 use AppBundle\Document\File\File;
+use AppBundle\Document\Version\Version;
 use Doctrine\MongoDB\Cursor;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -19,11 +20,8 @@ class ChannelController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function createChannelAction(Request $request, $name){
+    public function createChannelAction($name){
         /** @var \Doctrine\ODM\MongoDB\DocumentRepository $repos */
-        if(!$name){
-            return new Response('Parameter \'name\' missing' , 400);
-        }
 
         $channel = new Channel();
         $channel->setName($name);
@@ -31,12 +29,14 @@ class ChannelController extends Controller
         $repos = $dm->getRepository('AppBundle:Channel\Channel');
         $channel_ = $repos->findOneBy(["name"=> $name]);
 
-        $dm->persist($channel);
-        $dm->flush();
+
 
         if ( $channel_ ){
             return new JsonResponse($channel->toArray(),200);
         }
+
+        $dm->persist($channel);
+        $dm->flush();
 
         return new JsonResponse($channel->toArray(),201);
     }
@@ -90,26 +90,18 @@ class ChannelController extends Controller
         return new JsonResponse($channel->toArray());
     }
 
-    public function listChannelFilesAction(Request $request){
-        $channelId = $request->query->get('channel',false);
+    public function listCurrentVersionAction($cname){
 
-        if($channelId === false){
-            $request = json_decode($request->getContent(), true);
-            $channelId = $request['channel'];
-        }
-
-        if($channelId === false){
-            return new Response('Parameter \'channel\' missing',400);
-        }
         /** @var DocumentRepository $repos */
         /** @var Channel $channel */
         $manager = $this->get('doctrine_mongodb')->getManager();
         $repos   = $manager->getRepository('AppBundle:Channel\Channel');
-        $channel = $repos->findOneBy(['id' => $channelId ]);
+        $channel = $repos->findOneBy(['name' => $cname ]);
 
-        if ( !$channelId ){
-            return new Response("Channel Not Found: $channelId",400);
+        if ( !$channel ){
+            return new Response("Channel Not Found: $cname",400);
         }
+
         $channel->getCurrentVersion();
         $current = $channel->getCurrentVersion();
 
@@ -117,35 +109,51 @@ class ChannelController extends Controller
             return new Response('No Current Version Defined');
         }
 
-        $files_ = $current->getFiles();
-        $files  = [];
-
-        /** @var File $file */
-        foreach ($files_ ?: [] as $file) {
-            $files[] = $file->toArray();
-        }
-
-        return new JsonResponse($files);
+        return new JsonResponse($current->toArray());
     }
 
-    public function listChannelVersionsAction(Request $request)
+    public function setCurrentVersionAction($vname, $cname)
     {
-        $channelId = $request->query->get('channel',false);
+        /** @var DocumentRepository  $repos */
+        /** @var Version  $version */
 
-        if($channelId === false){
-            $request = json_decode($request->getContent(), true);
-            $channelId = $request['channel'];
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $repos = $dm->getRepository('AppBundle:Version\Version');
+
+        $qb = $repos->createQueryBuilder();
+        $result  = $qb
+            ->limit(1)
+            ->addAnd(
+                $qb->expr()->equals(['name' => $vname]),
+                $qb->expr()->equals(['channel.name' => $cname])
+            )->getQuery()->execute();
+
+        if($result->count() === 0){
+            return new Response("Version: $vname on Channel: $cname not found",400);
         }
 
-        if($channelId === false){
-            return new Response('Parameter \'channel\' missing',400);
-        }
+        $version = $result->toArray(false)[0];
+
+        $version->getChannel()->setCurrentVersion($version);
+
+        $dm->persist($version->getChannel());
+        $dm->flush();
+
+        return new JsonResponse($version->toArray());
+    }
+
+    public function listChannelVersionsAction($name)
+    {
 
         /** @var Channel $channel */
         /** @var DocumentRepository $repos */
         $manager = $this->get('doctrine_mongodb')->getManager();
         $repos   = $manager->getRepository('AppBundle:Channel\Channel');
-        $channel = $repos->findOneBy(['id' => $channelId ]);
+        $channel = $repos->findOneBy(['name' => $name ]);
+        if(!$channel){
+            return new Response("Channel Not Found: $name",400);
+        }
+
         $channels = [];
 
         foreach($channel->getVersions()?: [] as $channel){
