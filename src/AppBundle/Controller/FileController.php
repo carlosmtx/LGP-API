@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Document\Channel\Channel;
 use AppBundle\Document\File\File;
 use AppBundle\Document\Version\Version;
 use Doctrine\ODM\MongoDB\DocumentRepository;
@@ -18,42 +19,38 @@ class FileController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function addFileAction(Request $request)
+    public function addFileAction($cname,$vname,$fname,Request $request)
     {
         /** @var DocumentRepository $repos */
-        $versionId  = $request->request->get('version',false);
+        /** @var Channel $channel */
+        /** @var Version $ver */
         $fileUpload = $request->files->get('file',false);
-
-        if ( $versionId === false || $fileUpload === false){
-            return new Response('Parameter: \'version\' or \'file\' missing',400);
+        if( $fileUpload === false){
+            return new Response("Paramenter 'file' missing",400);
         }
 
         $dm       = $this->get('doctrine_mongodb')->getManager();
-        $repos    = $dm->getRepository('AppBundle:Version\Version');
+        $repos    = $dm->getRepository('AppBundle:Channel\Channel');
 
+        $channel = $repos->findOneBy(['name' => $cname]);
+
+        $version = false;
+        foreach($channel->getVersions() as $ver){
+            if ($ver->getName() == $vname){
+                $version = $ver;
+                break;
+            }
+        }
+        if( $version === false) {
+            return new Response("Channel: $cname Not Found", 400);
+        }
         $file = new File();
         $file->setFile($fileUpload);
-
-
-        /** @var Version  $version */
-        $version  = $repos->findOneBy(['id' => $versionId]);
-        $channel  = $version->getChannel();
-        $channel->getName();
-
-        if ( !$version ){
-            return new Response("Version Not Found: $versionId");
-        }
 
         $version->addFile($file);
         $file->setVersion($version);
 
-        $root = $this->container->getParameter('upload_root_dir');
-        $channelName = $channel->getName();
-        $versionName = $version->getName();
-        $dir = $root.'/'.$channelName.'/'.$versionName;
-
-        $file->setName($file->getFile()->getClientOriginalName());
-        $file->upload($dir);
+        $file->setName($cname);
 
         $dm->persist($version);
         $dm->persist($file);
@@ -63,7 +60,7 @@ class FileController extends Controller
         return new JsonResponse($file->toArray());
     }
 
-    public function getFileAction(Request $request){
+    public function getFileAction($cname,$vname,$fname){
         /** @var DocumentRepository $repos */
         /** @var  File $file */
         $fileId = $request->query->get('file',false);

@@ -15,7 +15,6 @@ class VersionController extends Controller
         /** @var DocumentRepository  $repos */
         /** @var Channel $channel */
 
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $repos = $dm->getRepository('AppBundle:Channel\Channel');
 

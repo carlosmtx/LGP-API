@@ -8,6 +8,8 @@
 namespace AppBundle\Service\FileSystem;
 
 
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 class FileSystem {
     /** @var  \Symfony\Component\Filesystem\Filesystem */
     private $fileSystem;
@@ -33,8 +35,12 @@ class FileSystem {
         $this->fileSystem->remove("{$this->rootDir}/{$channelName}/{$versionName}",0777);
     }
 
-    public function createFile($channelName,$versionName,$fileName){
-
+    public function createFile($cname,$vname,UploadedFile $file){
+        $this->getFile()->move(
+            $this->rootDir,
+            $this->getFile()->getClientOriginalName()
+        );
+        $this->path = $this->getFile()->getClientOriginalName();
     }
 
 

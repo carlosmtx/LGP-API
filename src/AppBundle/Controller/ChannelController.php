@@ -3,12 +3,10 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Document\Channel\Channel;
-use AppBundle\Document\File\File;
 use AppBundle\Document\Version\Version;
 use Doctrine\MongoDB\Cursor;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,8 +15,9 @@ class ChannelController extends Controller
 {
     /**
      * Creates a channel
-     * @param Request $request
+     * @param $name
      * @return JsonResponse
+     * @internal param Request $request
      */
     public function createChannelAction($name){
         /** @var \Doctrine\ODM\MongoDB\DocumentRepository $repos */

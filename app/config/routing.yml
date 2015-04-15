@@ -42,9 +42,9 @@ version_delete:
 
 
 create_file:
-  path: /file/create
+  path: /channel/{cname}/version/{vname}/file/{fname}
   defaults: { _controller: AppBundle:File:addFile }
 
 get_file:
-  path: /file
+  path: /channel/{cname}/version/{vname}/file/{fname}
   defaults: { _controller: AppBundle:File:getFile }

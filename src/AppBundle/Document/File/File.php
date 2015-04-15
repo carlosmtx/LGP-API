@@ -60,11 +60,7 @@ class File
 
     public function upload($dir)
     {
-        $this->getFile()->move(
-            $dir,
-            $this->getFile()->getClientOriginalName()
-        );
-        $this->path = $this->getFile()->getClientOriginalName();
+
     }
 
     public function toArray(){
