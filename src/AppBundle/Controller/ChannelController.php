@@ -4,6 +4,9 @@ namespace AppBundle\Controller;
 
 use AppBundle\Document\Channel\Channel;
 use AppBundle\Document\Version\Version;
+use AppBundle\Event\Channel\ChannelCreationEvent;
+use AppBundle\Event\Channel\ChannelDeleteEvent;
+use AppBundle\Event\Channel\ChannelEvent;
 use Doctrine\MongoDB\Cursor;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -26,13 +29,15 @@ class ChannelController extends Controller
         $channel->setName($name);
         $dm = $this->get('doctrine_mongodb')->getManager();
         $repos = $dm->getRepository('AppBundle:Channel\Channel');
+
         $channel_ = $repos->findOneBy(["name"=> $name]);
-
-
 
         if ( $channel_ ){
             return new JsonResponse($channel->toArray(),200);
         }
+
+        $event = new ChannelCreationEvent($channel);
+        $this->get('event_dispatcher')->dispatch(ChannelEvent::ChannelCreation,$event);
 
         $dm->persist($channel);
         $dm->flush();
@@ -82,7 +87,8 @@ class ChannelController extends Controller
         foreach( $channel->getVersions() as $version ){
             $dm->remove($version);
         }
-
+        $event = new ChannelDeleteEvent($channel);
+        $this->get('event_dispatcher')->dispatch(ChannelEvent::ChannelDelete,$event);
         $dm->remove($channel);
         $dm->flush();
 

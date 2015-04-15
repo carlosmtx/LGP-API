@@ -26,7 +26,7 @@ class FileController extends Controller
         /** @var Version $ver */
         $fileUpload = $request->files->get('file',false);
         if( $fileUpload === false){
-            return new Response("Paramenter 'file' missing",400);
+            return new Response("Parameter 'file' missing",400);
         }
 
         $dm       = $this->get('doctrine_mongodb')->getManager();
@@ -60,9 +60,9 @@ class FileController extends Controller
         return new JsonResponse($file->toArray());
     }
 
-    public function getFileAction($cname,$vname,$fname){
+    public function getFileAction($cname,$vname,$fname = "",Request $request){
         /** @var DocumentRepository $repos */
-        /** @var  File $file */
+        /** @var File $file */
         $fileId = $request->query->get('file',false);
 
         if ( $fileId === false ){

@@ -4,6 +4,9 @@ namespace AppBundle\Controller;
 
 use AppBundle\Document\Channel\Channel;
 use AppBundle\Document\Version\Version;
+use AppBundle\Event\Version\VersionCreationEvent;
+use AppBundle\Event\Version\VersionDeleteEvent;
+use AppBundle\Event\Version\VersionEvent;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,6 +32,9 @@ class VersionController extends Controller
 
         $channel->addVersion($version);
         $version->setChannel($channel);
+
+        $event = new VersionCreationEvent($version);
+        $this->get('event_dispatcher')->dispatch(VersionEvent::VersionCreation,$event);
 
         $dm->persist($version);
         $dm->persist($channel);
@@ -61,6 +67,8 @@ class VersionController extends Controller
         if ($channel->getCurrentVersion() === $version){
             return new Response("Current Version can't be deleted",409);
         }
+        $event = new VersionDeleteEvent($version);
+        $this->get('event_dispatcher')->dispatch(VersionEvent::VersionDelete,$event);
         $channel->removeVersion($version);
 
         $dm->remove($version);

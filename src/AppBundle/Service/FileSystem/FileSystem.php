@@ -8,6 +8,8 @@
 namespace AppBundle\Service\FileSystem;
 
 
+use AppBundle\Document\Channel\Channel;
+use AppBundle\Document\Version\Version;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileSystem {
@@ -20,19 +22,25 @@ class FileSystem {
         $this->rootDir = $rootDir;
     }
 
-    public function createChannelDir($channelName){
-        $this->fileSystem->mkdir("{$this->rootDir}/{$channelName}/",0777);
+    public function createChannel(Channel $channel){
+        $this->fileSystem->mkdir("{$this->rootDir}/{$channel->getName()}/",0777);
     }
-    public function removeChannelDir($channelName){
-        $this->fileSystem->remove("{$this->rootDir}/{$channelName}/");
+    public function removeChannel(Channel $channel){
+        foreach($channel->getVersions() as $version){
+            $this->removeVersion($version);
+        }
+        $this->fileSystem->remove("{$this->rootDir}/{$channel->getName()}/");
     }
 
 
-    public function createVersionDir($channelName,$versionName){
-        $this->fileSystem->mkdir("{$this->rootDir}/{$channelName}/{$versionName}",0777);
+    public function createVersion(Version $version){
+        $this->fileSystem->mkdir("{$this->rootDir}/{$version->getChannel()->getName()}/{$version->getName()}",0777);
     }
-    public function removeVersionDir($channelName,$versionName){
-        $this->fileSystem->remove("{$this->rootDir}/{$channelName}/{$versionName}",0777);
+    public function removeVersion(Version $version){
+        foreach($version->getFiles() as $file){
+            //$this->removeFile();
+        }
+        $this->fileSystem->remove("{$this->rootDir}/{$version->getChannel()->getName()}/{$version->getName()}",0777);
     }
 
     public function createFile($cname,$vname,UploadedFile $file){
@@ -43,21 +51,5 @@ class FileSystem {
         $this->path = $this->getFile()->getClientOriginalName();
     }
 
-
-    public function deleteChannel(){
-
-    }
-
-    public function deleteVersion(){
-
-    }
-
-    public function deleteFile(){
-
-    }
-
-    private function createName($object){
-
-    }
 
 }
