@@ -7,23 +7,35 @@ services:
 #    service_name:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+
   file_system_provider:
     class: Symfony\Component\Filesystem\Filesystem
     arguments: []
-  file_system_manager:
-    class: AppBundle\Service\FileSystem\FileSystem
-    arguments: [@file_system_provider,%upload_root_dir%]
+
+  file_factory:
+    class: AppBundle\Service\FileSystem\FileFactory
+    arguments: [@file_system_provider,%temp_root_dir%]
+
+
+  file_manager:
+    class: AppBundle\Service\FileSystem\FileManager
+    arguments: [@file_factory,%upload_root_dir%]
 
 
   channel.subscriber:
     class: AppBundle\Subscriber\ChannelSubscriber
-    arguments: [@file_system_manager]
+    arguments: [@file_manager]
     tags:
       - { name:  kernel.event_subscriber  }
 
   version.subscriber:
     class: AppBundle\Subscriber\VersionSubscriber
-    arguments: [@file_system_manager]
+    arguments: [@file_manager]
     tags:
       - { name:  kernel.event_subscriber}
 
+  file.subscriber:
+    class: AppBundle\Subscriber\FileSubscriber
+    arguments: [@file_manager]
+    tags:
+      - { name: kernel.event_subscriber }

@@ -11,33 +11,53 @@ namespace AppBundle\Service\FileSystem;
 
 use AppBundle\Document\File\File;
 use AppBundle\Service\FileSystem\FileType\AbstractFile;
+use AppBundle\Service\FileSystem\FileType\FolderFile;
 use AppBundle\Service\FileSystem\FileType\RarFile;
 use AppBundle\Service\FileSystem\FileType\RegularFile;
 use AppBundle\Service\FileSystem\FileType\ZipFile;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileFactory {
     const ZIP = "zip";
     const RAR = "rar";
+    const DIR = "__DIR__";
+    const REGULAR= "__REG__";
+    private $fs;
+    private $tmpDir;
 
-    /**
-     * @param File $file
-     * @return AbstractFile
-     */
-    public function get(File $file){
-        switch( $file->getFile()->getExtension() ){
+    public function __construct($provider,$tmpDir){
+        $this->fs = $provider;
+        $this->tmpDir = $tmpDir;
+    }
+
+    public function get($path,$extension=FileFactory::REGULAR){
+        switch($extension){
             case FileFactory::ZIP :
-                $fileObj = new ZipFile();
+                $fileObj = new ZipFile($path,$this->fs,$this->tmpDir);
                 break;
             case FileFactory::RAR :
-                $fileObj = new RarFile();
+                $fileObj = new RarFile($path,$this->fs,$this->tmpDir);
+                break;
+            case FileFactory::DIR :
+                $fileObj = new FolderFile($path,$this->fs,$this->tmpDir);
                 break;
             default:
-                $fileObj = new RegularFile();
+                $fileObj = new RegularFile($path,$this->fs,$this->tmpDir);
                 break;
         }
         return $fileObj;
-
-
     }
+
+
+    /**
+     * @param UploadedFile $file
+     * @return AbstractFile
+     */
+    public function getByUploadedFile(UploadedFile $file){
+
+        return $this->get($file->getPathname(),$file->guessClientExtension());
+    }
+
+
 
 }

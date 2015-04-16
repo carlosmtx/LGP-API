@@ -11,6 +11,8 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use AppBundle\Document\Version\Version as Version;
 /**
  * @MongoDB\Document
+ * @MongoDB\InheritanceType("SINGLE_COLLECTION")
+ * @MongoDB\DiscriminatorField("type")
  */
 class Channel {
     /**
@@ -22,7 +24,7 @@ class Channel {
      */
     protected $name;
     /**
-     * @MongoDB\ReferenceMany(targetDocument="AppBundle\Document\Version\Version")
+     * @MongoDB\ReferenceMany(targetDocument="AppBundle\Document\Version\Version" )
      */
     protected $versions;
     /**

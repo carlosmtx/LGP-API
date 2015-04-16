@@ -2,18 +2,18 @@
 /**
  * Created by IntelliJ IDEA.
  * User: carlos
- * Date: 15/04/2015
- * Time: 18:19
+ * Date: 16/04/2015
+ * Time: 22:00
  */
 
 namespace AppBundle\Service\FileSystem\FileType;
 
 
-class RegularFile extends AbstractFile{
+class FolderFile extends AbstractFile{
 
     function save($path = false)
     {
-       $this->fs->copy($this->filePath,$path);
+        $this->fs->mkdir($path ?: $this->filePath);
     }
 
     function remove($path = false)
@@ -23,6 +23,6 @@ class RegularFile extends AbstractFile{
 
     function toFile()
     {
-       return new File($this->filePath);
+        // TODO: Implement toFile() method.
     }
 }

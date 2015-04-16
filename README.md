@@ -1,68 +1,44 @@
-Available Routes
+## Dependecies
+- zip
+- php5
+- php5-mongo
 
-- **/channel/list
- 
-  Lists all the available channels
+## Available Routes
+All the parameteres enclosed between {} are variable
 
-  Parameters: none
-  
-- /channel/create
- 
-  Creates a new Channel named 'name'
-   
-  Parameters[POST]
-    
-    name: the name of the new channel
-   
-- /channel/delete
- 
-  Deletes the Channel by it's 'id'  
-  
-  Parameters[POST]
-  
-     id: The id of the channel to be deleted  
-  
+- /channel/{cname} [GET]
 
-- /channel/list/files
-    
-  Lists the files in the current version of channel 
-  
-  Parameters[POST] 
-    channel : the id of the channel
+        Returns all of the channel information
+        
+- /channel/{cname} [PUT]
 
-- /version/create
+        Creates a new channel with name 'cname'
+        
+- /channel/{cname} [DELETE]
+        
+        Deletes the channel 'cname'
+        Note: all versions and files of this channel will also be deleted
 
- Creates a version associated with a channel
-  
- Parameters:[POST]
-     channel: the id of the channel
-     name   : the name of the version that is going to be created
+- /channel/{cname}/current [GET]
+        
+        Returns the current version for the channel 'cname'.
+        Note: if a get variable 'as' is specified the version will be returned with the specified extension(only zip is implemented by now)
+        Ex: /channel/{cname}/current?as=zip
 
-- /version/delete
+- /channel/{cname}/version [GET]
 
-    Deletes a version
-    
-    Parameters:[POST]
-      version: the version to be deleted
-     
-- /version/current/set
+        Lists all the existing versions of the channel {cname}
 
-  Sets the version as the channel current version
+- /channel/{cname}/current/{vname} [PUT,POST]
 
-  Parameters:[POST]
-    version: version
-    
-- /file/create
+        Sets the version 'vname' as the current version of the channel 'cname'
 
-   Creates a file 
+- channel/{cname}/version/{vname} [PUT]
 
-   Parameters:[POST]
-     version: id da versao à qual o ficheiro vai ser adicionado
-     file: ficheiro a ser submetido
-- /file
+        Creates the version 'vname' inside the channel 'cname'
 
-   Returns the file with by it's id
-   
-   Parameters[GET]
-    file: file id 
-  
+- channel/{cname}/version/{vname} [DELETED]
+
+        Deletes the version 'vname' inside the channel 'cname'
+        Note: all files inside the version will also be deleted
+

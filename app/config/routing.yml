@@ -14,19 +14,19 @@ channel_list:
   methods: [GET]
 
 channel_versions_list:
-  path: /channel/{name}/version
-  defaults: { _controller: AppBundle:Channel:listChannelVersions }
+  path: /channel/{cname}/version
+  defaults: { _controller: AppBundle:Version:listChannelVersions }
   methods: [GET]
 
-channel_current_list:
+channel_current:
   path: /channel/{cname}/current
-  defaults: { _controller: AppBundle:Channel:listCurrentVersion }
+  defaults: { _controller: AppBundle:Version:getCurrentVersion }
   methods: [GET]
 
 channel_current_set:
   path: /channel/{cname}/current/{vname}
-  defaults: { _controller: AppBundle:Channel:setCurrentVersion }
-  methods: [PUT]
+  defaults: { _controller: AppBundle:Version:setCurrentVersion }
+  methods: [PUT,POST]
 
 
 version_create:
@@ -41,10 +41,11 @@ version_delete:
 
 
 
+
 create_file:
-  path: /channel/{cname}/version/{vname}/file/{fname}
+  path: /channel/{cname}/version/{vname}/file
   defaults: { _controller: AppBundle:File:addFile }
 
 get_file:
-  path: /channel/{cname}/version/{vname}/file/{fname}
+  path: /channel/{cname}/version/{vname}/file
   defaults: { _controller: AppBundle:File:getFile }

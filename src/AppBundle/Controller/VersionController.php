@@ -9,11 +9,14 @@ use AppBundle\Event\Version\VersionDeleteEvent;
 use AppBundle\Event\Version\VersionEvent;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class VersionController extends Controller
 {
+
     public function createVersionAction($cname,$vname){
         /** @var DocumentRepository  $repos */
         /** @var Channel $channel */
@@ -79,6 +82,87 @@ class VersionController extends Controller
         return new JsonResponse($version->toArray());
     }
 
+    public function getCurrentVersionAction($cname,Request $request){
+
+        /** @var DocumentRepository $repos */
+        /** @var Channel $channel */
+        $manager = $this->get('doctrine_mongodb')->getManager();
+        $repos   = $manager->getRepository('AppBundle:Channel\Channel');
+        $channel = $repos->findOneBy(['name' => $cname ]);
+
+        if ( !$channel ){
+            return new Response("Channel Not Found: $cname",400);
+        }
+
+        $channel->getCurrentVersion();
+        $current = $channel->getCurrentVersion();
+
+        if ( !$current ){
+            return new Response('No Current Version Defined');
+        }
+
+        $type = $request->query->get('as',false);
+        if($type != false){
+            $file = $this->get('file_factory')->get(
+                "{$this->container->getParameter('upload_root_dir')}/$cname/{$current->getName()}",
+                $request->query->get('as')
+            );
+            return new BinaryFileResponse($file->toFile());
+        }
+
+        return new JsonResponse($current->toArray());
+    }
+
+    public function setCurrentVersionAction($vname, $cname)
+    {
+        /** @var DocumentRepository  $repos */
+        /** @var Version  $version */
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $repos = $dm->getRepository('AppBundle:Version\Version');
+
+        $qb = $repos->createQueryBuilder();
+        $result  = $qb
+            ->limit(1)
+            ->addAnd(
+                $qb->expr()->equals(['name' => $vname]),
+                $qb->expr()->equals(['channel.name' => $cname])
+            )->getQuery()->execute();
+
+        if($result->count() === 0){
+            return new Response("Version: $vname on Channel: $cname not found",400);
+        }
+
+        $version = $result->toArray(false)[0];
+
+        $version->getChannel()->setCurrentVersion($version);
+
+        $dm->persist($version->getChannel());
+        $dm->flush();
+
+        return new JsonResponse($version->toArray());
+    }
+
+    public function listChannelVersionsAction($cname)
+    {
+
+        /** @var Channel $channel */
+        /** @var DocumentRepository $repos */
+        $manager = $this->get('doctrine_mongodb')->getManager();
+        $repos   = $manager->getRepository('AppBundle:Channel\Channel');
+        $channel = $repos->findOneBy(['name' => $cname ]);
+        if(!$channel){
+            return new Response("Channel Not Found: $cname",400);
+        }
+
+        $channels = [];
+
+        foreach($channel->getVersions()?: [] as $channel){
+            $channels[]  = $channel->toArray();
+        }
+
+        return new JsonResponse($channels);
+    }
 
 
 }

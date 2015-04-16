@@ -12,12 +12,13 @@ namespace AppBundle\Subscriber;
 use AppBundle\Event\Version\VersionCreationEvent;
 use AppBundle\Event\Version\VersionDeleteEvent;
 use AppBundle\Event\Version\VersionEvent;
+use AppBundle\Service\FileSystem\FileManager;
 use AppBundle\Service\FileSystem\FileSystem;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class VersionSubscriber implements EventSubscriberInterface {
     /**
-     * @var FileSystem
+     * @var FileManager
      */
     private $fs;
 
@@ -37,7 +38,7 @@ class VersionSubscriber implements EventSubscriberInterface {
         $this->fs->removeVersion($event->getVersion());
     }
 
-    public function __construct(FileSystem $fs){
+    public function __construct(FileManager $fs){
 
         $this->fs = $fs;
     }

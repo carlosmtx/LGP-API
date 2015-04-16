@@ -9,28 +9,28 @@
 namespace AppBundle\Service\FileSystem\FileType;
 
 
+use Symfony\Component\Filesystem\Filesystem;
+
 abstract class AbstractFile {
 
+    /** @var  $fs Filesystem */
+    protected $fs;
+    protected $filePath;
     protected $rootDir;
-    protected $type;
+    protected $tmpDir;
 
-    /**
-     * @param mixed $rootDir
-     */
-    public function setRootDir($rootDir)
-    {
-        $this->rootDir = $rootDir;
+    public function __construct($path,$fs,$tmpDir){
+        $this->filePath = $path;
+        $this->fs = $fs;
+        $this->tmpDir = $tmpDir;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getType()
-    {
-        return $this->type;
+    public function move($path){
+        $this->remove($path);
+        $this->save($path);
     }
-
-    abstract function save();
+    abstract function save($path = false);
+    abstract function remove($path = false);
+    abstract function toFile();
 
 
 }

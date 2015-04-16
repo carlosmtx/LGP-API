@@ -8,7 +8,6 @@
 namespace AppBundle\Document\File;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
-use AppBundle\Document\Version\Version as Version;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
@@ -30,9 +29,21 @@ class File
      */
     private $path='';
     /**
-     * @MongoDB\String
+     * @MongoDB\String()
      */
     public $name='';
+    /**
+     * @MongoDB\String()
+     */
+    public $extension;
+
+    /**
+     * @MongoDB\ReferenceOne(targetDocument="Folder")
+     */
+    public $parent;
+
+
+
     /**
      * @MongoDB\ReferenceOne(targetDocument="AppBundle\Document\Version\Version")
      */
@@ -60,13 +71,17 @@ class File
 
     public function upload($dir)
     {
-        $this->getFile()->move(
-            $dir,
-            $this->getFile()->getClientOriginalName()
-        );
-        $this->path = $this->getFile()->getClientOriginalName();
+
     }
 
+    public function toArray(){
+        $retVal = [
+            'created_at' => $this->getCreatedAt(),
+            'name'       => $this->getName(),
+            'id'         => $this->getId()
+        ];
+        return $retVal;
+    }
 
     public function __construct()
     {
@@ -194,5 +209,27 @@ class File
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * Set extension
+     *
+     * @param string $extension
+     * @return self
+     */
+    public function setExtension($extension)
+    {
+        $this->extension = $extension;
+        return $this;
+    }
+
+    /**
+     * Get extension
+     *
+     * @return string $extension
+     */
+    public function getExtension()
+    {
+        return $this->extension;
     }
 }

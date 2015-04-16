@@ -11,8 +11,17 @@ namespace AppBundle\Service\FileSystem\FileType;
 
 class RarFile extends AbstractFile{
 
-    function save()
+    function save($path=false)
     {
         // TODO: Implement save() method.
+    }
+    function remove($path = false)
+    {
+        $this->fs->remove($this->filePath);
+    }
+
+    function toFile()
+    {
+        // TODO: Implement toFile() method.
     }
 }

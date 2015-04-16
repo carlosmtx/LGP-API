@@ -8,7 +8,6 @@
 namespace AppBundle\Document\File;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
-use AppBundle\Document\Version\Version as Version;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
@@ -28,11 +27,23 @@ class File
     /**
      * @MongoDB\String
      */
-    private $path='';
+    public $path='';
     /**
-     * @MongoDB\String
+     * @MongoDB\String()
      */
     public $name='';
+    /**
+     * @MongoDB\String()
+     */
+    public $extension;
+
+    /**
+     * @MongoDB\ReferenceOne(targetDocument="Folder")
+     */
+    public $parent;
+
+
+
     /**
      * @MongoDB\ReferenceOne(targetDocument="AppBundle\Document\Version\Version")
      */
@@ -198,5 +209,49 @@ class File
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * Set extension
+     *
+     * @param string $extension
+     * @return self
+     */
+    public function setExtension($extension)
+    {
+        $this->extension = $extension;
+        return $this;
+    }
+
+    /**
+     * Get extension
+     *
+     * @return string $extension
+     */
+    public function getExtension()
+    {
+        return $this->extension;
+    }
+
+    /**
+     * Set parent
+     *
+     * @param AppBundle\Document\File\Folder $parent
+     * @return self
+     */
+    public function setParent(\AppBundle\Document\File\Folder $parent)
+    {
+        $this->parent = $parent;
+        return $this;
+    }
+
+    /**
+     * Get parent
+     *
+     * @return AppBundle\Document\File\Folder $parent
+     */
+    public function getParent()
+    {
+        return $this->parent;
     }
 }
