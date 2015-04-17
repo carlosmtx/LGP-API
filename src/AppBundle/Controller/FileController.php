@@ -9,6 +9,7 @@ use AppBundle\Event\File\FileCreationEvent;
 use AppBundle\Event\File\FileEvent;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ class FileController extends Controller
         /** @var DocumentRepository $repos */
         /** @var Channel $channel */
         /** @var Version $ver */
-
+        /** @var UploadedFile $fileUpload */
         $fileUpload = $request->files->get('file',false);
 
         if( $fileUpload === false){

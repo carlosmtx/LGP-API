@@ -8,9 +8,6 @@
 
 namespace AppBundle\Service\FileSystem\FileType;
 
-
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\File\File;
 
 class ZipFile extends AbstractFile{

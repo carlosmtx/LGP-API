@@ -55,8 +55,8 @@ class FileManager {
 
     public function createFile(File $fileDoc,UploadedFile $file){
         $fileFile = $this->fileFactory->getByUploadedFile($file);
-        $fileDoc->setExtension($file->guessExtension());
-        $fileFile->save("{$this->rootDir}/{$fileDoc->getVersion()->getChannel()->getName()}/{$fileDoc->getVersion()->getName()}");
+        $fileDoc->setExtension($file->getClientOriginalExtension());
+        $fileFile->save("{$this->rootDir}/{$fileDoc->getVersion()->getChannel()->getName()}/{$fileDoc->getVersion()->getName()}/");
     }
 
 

@@ -50,12 +50,12 @@ class FileFactory {
 
 
     /**
-     * @param UploadedFile $file
+     * @param UploadedFile $file()
      * @return AbstractFile
      */
     public function getByUploadedFile(UploadedFile $file){
 
-        return $this->get($file->getPathname(),$file->guessClientExtension());
+        return $this->get($file->getPathname(),$file->getClientOriginalExtension());
     }
 
 
