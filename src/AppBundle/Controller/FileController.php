@@ -38,6 +38,10 @@ class FileController extends Controller
         $repos    = $dm->getRepository('AppBundle:Channel\Channel');
 
         $channel = $repos->findOneBy(['name' => $cname]);
+        if(!$channel){
+            return new Response("Channel: $cname Not Found", 400);
+        }
+
 
         $version = false;
         foreach($channel->getVersions() as $ver){
@@ -47,7 +51,7 @@ class FileController extends Controller
             }
         }
         if( $version === false) {
-            return new Response("Channel: $cname Not Found", 400);
+            return new Response("Version: $vname Not Found", 400);
         }
 
         $file = new File();
