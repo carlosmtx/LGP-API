@@ -6,27 +6,30 @@
  * Time: 18:18
  */
 
-namespace AppBundle\Service\FileSystem\FileType;
+namespace AppBundle\Service\FileSystem\FileType\Compressed;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
 
-class ZipFile extends AbstractFile{
+class ZipFile extends Compressed{
     private $extracted = false;
-    /** @var Filesystem $fs */
-    function __construct($path,$fs,$tmpDir){
-        parent::__construct($path,$fs,$tmpDir);
+
+    /**
+     * @param $path
+     * @var Filesystem $fs
+     * @param $tmpDir
+     * @param $fileFactory
+     */
+    function __construct($path,$fs,$tmpDir,$fileFactory){
+        parent::__construct($path,$fs,$tmpDir,$fileFactory);
         $this->extracted = false;
     }
-    function extract(){
-
-    }
-    function save($path = false)
-    {
+    function extractTo($path=false){
+        $path = $path ? $path : $this->tmpDir;
         $zipper = new \ZipArchive();
-        $zipper->open($this->filePath);
+        $zipper->open($this->srcPath);
         $zipper->extractTo($path);
-
+        $zipper->close();
     }
 
     function compress()
@@ -38,7 +41,7 @@ class ZipFile extends AbstractFile{
 
     function remove($path = false)
     {
-        $this->fs->remove($this->filePath);
+        //$this->fs->remove($this->filePath);
     }
 
     protected function getStructure()

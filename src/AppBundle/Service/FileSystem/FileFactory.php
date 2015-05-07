@@ -9,12 +9,11 @@
 namespace AppBundle\Service\FileSystem;
 
 
-use AppBundle\Document\File\File;
-use AppBundle\Service\FileSystem\FileType\AbstractFile;
+use AppBundle\Service\FileSystem\FileType\Compressed\ZipFile;
+use AppBundle\Service\FileSystem\FileType\File;
 use AppBundle\Service\FileSystem\FileType\FolderFile;
 use AppBundle\Service\FileSystem\FileType\RarFile;
 use AppBundle\Service\FileSystem\FileType\RegularFile;
-use AppBundle\Service\FileSystem\FileType\ZipFile;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileFactory {
@@ -33,16 +32,16 @@ class FileFactory {
     public function get($path,$extension=FileFactory::REGULAR){
         switch($extension){
             case FileFactory::ZIP :
-                $fileObj = new ZipFile($path,$this->fs,$this->tmpDir);
+                $fileObj = new ZipFile($path,$this->fs,$this->tmpDir,$this);
                 break;
             case FileFactory::RAR :
-                $fileObj = new RarFile($path,$this->fs,$this->tmpDir);
+                $fileObj = new RarFile($path,$this->fs,$this->tmpDir,$this);
                 break;
             case FileFactory::DIR :
-                $fileObj = new FolderFile($path,$this->fs,$this->tmpDir);
+                $fileObj = new FolderFile($path,$this->fs,$this->tmpDir,$this);
                 break;
             default:
-                $fileObj = new RegularFile($path,$this->fs,$this->tmpDir);
+                $fileObj = new RegularFile($path,$this->fs,$this->tmpDir,$this);
                 break;
         }
         return $fileObj;
@@ -51,11 +50,11 @@ class FileFactory {
 
     /**
      * @param UploadedFile $file()
-     * @return AbstractFile
+     * @return File
      */
     public function getByUploadedFile(UploadedFile $file){
 
-        return $this->get($file->getPathname(),$file->getClientOriginalExtension());
+        return $this->get($file->getRealPath(),$file->getClientOriginalExtension());
     }
 
 

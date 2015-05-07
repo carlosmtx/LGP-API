@@ -9,7 +9,9 @@
 namespace AppBundle\Service\FileSystem\FileType;
 
 
-class RarFile extends AbstractFile{
+use AppBundle\Service\FileSystem\FileType\Compressed\Compressed;
+
+class RarFile extends Compressed{
 
     function save($path=false)
     {
@@ -23,5 +25,14 @@ class RarFile extends AbstractFile{
     function toFile()
     {
         // TODO: Implement toFile() method.
+    }
+
+    /**
+     * @param bool $dest
+     * @return FolderFile
+     */
+    public function extractTo($dest = false)
+    {
+        // TODO: Implement extractTo() method.
     }
 }

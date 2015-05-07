@@ -39,7 +39,7 @@ abstract class File{
      * @param $fileFactory
      */
     public function __construct($path,$fs,$tmpDir,$fileFactory){
-        $this->filePath = $path;
+        $this->srcPath = $path;
         $this->fs = $fs;
         $this->tmpDir = $tmpDir;
         $this->fileFactory = $fileFactory;
@@ -47,39 +47,34 @@ abstract class File{
 
 
     public function move($path){
+        $this->fs->copy($this->srcPath,$path);
         $this->remove($path);
-        $this->save($path);
     }
 
-    protected function createFile($path){
-        $this->fileFactory->getByPath($path);
-    }
-
-    function compress($type = File::ZIP){
+    function compressTo($type = File::ZIP,$dest = false){
+        $dest = $dest ?: $this->tmpDir;
         switch($type){
             case File::ZIP :
-                return new ZipFile($this->filePath,$this->fs,$this->tmpDir);
+                return new ZipFile($this->filePath,$this->fs,$this->tmpDir,$this->fileFactory);
                 break;
             case File::RAR :
                 throw new NotImplementedException("Rar file compression not yet implemented");
                 break;
         }
+        throw new \InvalidArgumentException("Type specified was not valid");
     }
 
-
-    abstract function save($path = false);
-    abstract function remove($path = false);
-
+    abstract function remove();
     abstract protected function getChildren();
     function getTree(){
-        if ( $this->getChildren()){
-            $tree = [];
-            /** @var File $child */
-            foreach($this->getChildren() as $child){
-                $tree[] = $child->getTree();
-            }
-            return $tree;
-        }
-        return $this;
+//        if ( $this->getChildren()){
+//            $tree = [];
+//            /** @var File $child */
+//            foreach($this->getChildren() as $child){
+//                $tree[] = $child->getTree();
+//            }
+//            return $tree;
+//        }
+//        return $this;
     }
 }

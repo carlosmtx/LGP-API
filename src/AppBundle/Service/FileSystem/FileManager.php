@@ -8,27 +8,27 @@
 namespace AppBundle\Service\FileSystem;
 
 
-use AppBundle\Document\Channel\Channel;
-use AppBundle\Document\File\File;
-use AppBundle\Document\Version\Version;
+
+use AppBundle\Document\Channel;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileManager {
     /** @var FileFactory */
     private $fileFactory;
     private $rootDir;
+    private $provider;
 
-    public function __construct(FileFactory $fileFactory, $rootDir){
+    public function __construct(FileFactory $fileFactory,Filesystem $provider, $rootDir){
         $this->rootDir = $rootDir;
         $this->fileFactory = $fileFactory;
+        $this->provider = $provider;
     }
 
     public function createChannel(Channel $channel){
-        $this->fileFactory->get(
-            "{$this->rootDir}/{$channel->getName()}",
-            FileFactory::DIR
-        )->save();
+        $this->provider->mkdir("{$this->rootDir}/{$channel->name}");
     }
+    /*
     public function removeChannel(Channel $channel){
         foreach($channel->getVersions() as $version){
             $this->removeVersion($version);
@@ -57,7 +57,7 @@ class FileManager {
         $fileFile = $this->fileFactory->getByUploadedFile($file);
         $fileDoc->setExtension($file->getClientOriginalExtension());
         $fileFile->save("{$this->rootDir}/{$fileDoc->getVersion()->getChannel()->getName()}/{$fileDoc->getVersion()->getName()}/");
-    }
+    }*/
 
 
 }

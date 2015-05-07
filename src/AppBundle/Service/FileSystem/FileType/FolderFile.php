@@ -9,20 +9,15 @@
 namespace AppBundle\Service\FileSystem\FileType;
 
 
-class FolderFile extends AbstractFile{
+class FolderFile extends File{
 
-    function save($path = false)
-    {
-        $this->fs->mkdir($path ?: $this->filePath);
-    }
-
-    function remove($path = false)
+    function remove()
     {
         $this->fs->remove($this->filePath);
     }
 
-    function toFile()
+    protected function getChildren()
     {
-        // TODO: Implement toFile() method.
+        return [];
     }
 }

@@ -9,7 +9,7 @@
 namespace AppBundle\Service\FileSystem\FileType;
 
 
-class RegularFile extends AbstractFile{
+class RegularFile extends File{
 
     function save($path = false)
     {
@@ -21,8 +21,8 @@ class RegularFile extends AbstractFile{
         $this->fs->remove($this->filePath);
     }
 
-    function toFile()
+    protected function getChildren()
     {
-       return new File($this->filePath);
+        return false;
     }
 }
