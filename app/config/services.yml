@@ -19,7 +19,7 @@ services:
 
   file_manager:
     class: AppBundle\Service\FileSystem\FileManager
-    arguments: [@file_factory,%upload_root_dir%]
+    arguments: [@file_factory,@file_system_provider,%upload_root_dir%]
 
 
   channel.subscriber:
@@ -39,3 +39,6 @@ services:
     arguments: [@file_manager]
     tags:
       - { name: kernel.event_subscriber }
+
+  trackable_scene_rel_manager:
+    class: AppBundle\Service\TrackingXMLManager\TrackingXMLManager
