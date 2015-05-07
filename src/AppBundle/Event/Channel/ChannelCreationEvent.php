@@ -7,7 +7,7 @@
  */
 
 namespace AppBundle\Event\Channel;
-use AppBundle\Document\Channel\Channel;
+use AppBundle\Document\Channel;
 use Symfony\Component\EventDispatcher\Event;
 
 class ChannelCreationEvent extends Event{
