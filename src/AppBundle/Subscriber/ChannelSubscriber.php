@@ -13,7 +13,6 @@ use AppBundle\Event\Channel\ChannelCreationEvent;
 use AppBundle\Event\Channel\ChannelDeleteEvent;
 use AppBundle\Event\Channel\ChannelEvent;
 use AppBundle\Service\FileSystem\FileManager;
-use AppBundle\Service\FileSystem\FileSystem;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ChannelSubscriber implements EventSubscriberInterface{
@@ -37,7 +36,7 @@ class ChannelSubscriber implements EventSubscriberInterface{
     }
 
     public function onChannelDelete(ChannelDeleteEvent $event){
-        $this->fs->removeChannel($event->getChannel());
+       // $this->fs->removeChannel($event->getChannel());
     }
 
     public function __construct(FileManager $fs){

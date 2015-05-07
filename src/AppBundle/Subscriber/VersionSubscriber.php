@@ -13,7 +13,6 @@ use AppBundle\Event\Version\VersionCreationEvent;
 use AppBundle\Event\Version\VersionDeleteEvent;
 use AppBundle\Event\Version\VersionEvent;
 use AppBundle\Service\FileSystem\FileManager;
-use AppBundle\Service\FileSystem\FileSystem;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class VersionSubscriber implements EventSubscriberInterface {
@@ -31,11 +30,11 @@ class VersionSubscriber implements EventSubscriberInterface {
     }
 
     public function onVersionCreate(VersionCreationEvent $event){
-        $this->fs->createVersion($event->getVersion());
+        //$this->fs->createVersion($event->getVersion());
     }
 
     public function onVersionDelete(VersionDeleteEvent $event){
-        $this->fs->removeVersion($event->getVersion());
+        //$this->fs->removeVersion($event->getVersion());
     }
 
     public function __construct(FileManager $fs){

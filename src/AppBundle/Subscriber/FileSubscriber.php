@@ -12,7 +12,6 @@ namespace AppBundle\Subscriber;
 use AppBundle\Event\File\FileCreationEvent;
 use AppBundle\Event\File\FileEvent;
 use AppBundle\Service\FileSystem\FileManager;
-use AppBundle\Service\FileSystem\FileSystem;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class FileSubscriber implements EventSubscriberInterface{
@@ -38,7 +37,7 @@ class FileSubscriber implements EventSubscriberInterface{
         $fileDoc = $fileEvent->getFileDocument();
         $fileFile= $fileEvent->getUploadedFile();
 
-        $this->fs->createFile($fileDoc,$fileFile);
+       //$this->fs->createFile($fileDoc,$fileFile);
 
 
     }
