@@ -63,7 +63,7 @@ class SceneManager {
         $xml = simplexml_load_file("$rootPath/index.xml");
     }
 
-    private function getTrackable
+
 
 
 
