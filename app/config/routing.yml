@@ -1,15 +1,78 @@
+
+channel_list:
+  path: /channel
+  defaults: { _controller: AppBundle:Channel:listChannels }
+  methods: [GET]
+
 channel_create:
   path: /channel/{cname}
   defaults: { _controller: AppBundle:Channel:createChannel }
   methods: [POST]
+
+channel_delete:
+  path: /channel/{cname}
+  defaults: { _controller: AppBundle:Channel:deleteChannel }
+  methods: [DELETE]
+
+channel_current:
+  path: /channel/{cname}/current
+  defaults: { _controller: AppBundle:Channel:getCurrentVersion }
+  methods: [GET]
+
 
 trackable_create:
   path: /channel/{cname}/trackable
   defaults: { _controller: AppBundle:Trackable:addTrackable }
   methods: [POST]
 
+trackable_list:
+  path: /channel/{cname}/trackable/list
+  defaults: { _controller: AppBundle:Trackable:listTrackables }
+  methods: [GET]
+
+trackable_get:
+  path: /channel/{cname}/trackable
+  defaults: { _controller: AppBundle:Trackable:get }
+  methods: [GET]
+
+trackable_link_scene:
+  path: /channel/{cname}/trackable/link
+  defaults: { _controller: AppBundle:Trackable:linkTo }
+  methods: [POST]
+
+
+
+
+
+
 scene_create:
   path: /channel/{cname}/scene
   defaults: { _controller: AppBundle:Scene:createScene }
   methods: [POST]
+
+scene_list:
+  path: /channel/{cname}/scenes
+  defaults: { _controller: AppBundle:Scene:listScene }
+  methods: [GET]
+
+scene_get:
+  path: /channel/{cname}/scene
+  defaults: { _controller: AppBundle:Scene:get }
+  methods: [GET]
+
+scene_link_trackable:
+  path: /channel/{cname}/scene/link
+  defaults: { _controller: AppBundle:Trackable:linkTo }
+  methods: [POST]
+
+
+
+
+
+
+
+
+deletable:
+  path: /exp
+  defaults: { _controller: AppBundle:Deletable:index }
 

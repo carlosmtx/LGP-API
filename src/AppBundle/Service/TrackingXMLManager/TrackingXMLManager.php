@@ -7,6 +7,9 @@
  */
 namespace AppBundle\Service\TrackingXMLManager;
 
+use AppBundle\Document\Scene;
+use AppBundle\Document\Trackable;
+
 class TrackingXMLManager {
 
     public function parse($xml){
@@ -123,6 +126,10 @@ class TrackingXMLManager {
     </Connections>
 </TrackingData>
 ";
-        return new \SimpleXMLElement($xml);
+        $this->xmlElem =  new \SimpleXMLElement($xml);
+    }
+
+    public function connect(Scene $scene , Trackable $trackable){
+
     }
 }

@@ -57,6 +57,10 @@ class FileFactory {
         return $this->get($file->getRealPath(),$file->getClientOriginalExtension());
     }
 
+    public function getByPath($path){
+        return $this->get($path,pathinfo($path, PATHINFO_EXTENSION));
+    }
+
 
 
 }

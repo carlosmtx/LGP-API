@@ -2,6 +2,8 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Document\Channel;
+use AppBundle\Document\Trackable;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 
 /**
@@ -12,5 +14,15 @@ use Doctrine\ODM\MongoDB\DocumentRepository;
  */
 class TrackableRepository extends DocumentRepository
 {
-
+    /**
+     * @param $trackId
+     * @param Channel $channel
+     * @return Trackable
+     */
+    public function getTrackableByIdInChannel($trackId,Channel $channel){
+        return $this->findOneBy([
+            'id' => $trackId,
+            'channel.id' => $channel->id
+        ]);
+    }
 }

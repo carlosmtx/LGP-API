@@ -8,32 +8,22 @@ namespace AppBundle\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
-
 /** @MongoDB\Document(repositoryClass="AppBundle\Repository\TrackableRepository") */
 class Trackable extends Document{
-    /**
-     * @MongoDB\String()
-     */
+    /** @MongoDB\String() */
     public $name;
-    /**
-     * @MongoDB\String()
-     */
+    /** @MongoDB\String() */
     public $rootFolder;
-    /**
-     * @MongoDB\String()
-     */
+    /** @MongoDB\String() */
     public $fileName;
-    /**
-     * @MongoDB\String()
-     */
+    /** @MongoDB\String() */
     public $fileOriginalName;
-    /**
-     * @MongoDB\String()
-     */
+    /**@MongoDB\String() */
     public $description;
-    /** @MongoDB\ReferenceMany(targetDocument="Scene")
-     *  @var ArrayCollection  $scenes */
-    public $scenes ;
+    /**
+     * @MongoDB\ReferenceMany(targetDocument="Scene")
+     */
+    public $scenes;
     /**
      * @MongoDB\ReferenceOne(targetDocument="Channel")
      */
@@ -41,8 +31,8 @@ class Trackable extends Document{
 
     public function __construct(){
         parent::__construct();
-        $this->scenes = new ArrayCollection();
+        if(!$this->scenes){
+          $this->scenes = new ArrayCollection();
+        }
     }
-
-
 }

@@ -2,6 +2,8 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Document\Channel;
+use AppBundle\Document\Scene;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 
 /**
@@ -12,4 +14,15 @@ use Doctrine\ODM\MongoDB\DocumentRepository;
  */
 class SceneRepository extends DocumentRepository
 {
+    /**
+     * @param $sceneId
+     * @param Channel $channel
+     * @return Scene
+     */
+    public function getSceneByIdInChannel($sceneId,Channel $channel){
+        return $this->findOneBy([
+            'id' => $sceneId,
+            'channel.id' => $channel->id
+        ]);
+    }
 }

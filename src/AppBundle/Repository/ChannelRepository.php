@@ -18,4 +18,6 @@ class ChannelRepository extends DocumentRepository
             ->getRepository('AppBundle:Channel')
             ->findOneBy(['name' => $cname]);
     }
+
+
 }

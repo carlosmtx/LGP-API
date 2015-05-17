@@ -23,8 +23,10 @@ class Scene extends Document{
 
     /**@MongoDB\String() */
     public $description;
-    /** @MongoDB\ReferenceMany(targetDocument="Trackable")
-     *  @var ArrayCollection  $trackables */
+    /**
+     * @MongoDB\ReferenceMany(targetDocument="Scene",mappedBy="scenes")
+     * @var ArrayCollection  $trackables
+     */
     public $trackables;
     /**
      * @MongoDB\ReferenceOne(targetDocument="Channel")

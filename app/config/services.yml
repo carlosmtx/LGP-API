@@ -8,18 +8,14 @@ services:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
 
-  file_system_provider:
-    class: Symfony\Component\Filesystem\Filesystem
-    arguments: []
-
   file_factory:
     class: AppBundle\Service\FileSystem\FileFactory
-    arguments: [@file_system_provider,%temp_root_dir%]
+    arguments: [@ar.file_system_provider,%ar_banking_temp_upload_dir%]
 
 
   file_manager:
     class: AppBundle\Service\FileSystem\FileManager
-    arguments: [@file_factory,@file_system_provider,%upload_root_dir%]
+    arguments: [@file_factory,@ar.file_system_provider,%ar_banking_permanent_upload_dir%]
 
 
   channel.subscriber:
@@ -40,5 +36,22 @@ services:
     tags:
       - { name: kernel.event_subscriber }
 
-  trackable_scene_rel_manager:
-    class: AppBundle\Service\TrackingXMLManager\TrackingXMLManager
+
+  ar.file_system_provider:
+    class: Symfony\Component\Filesystem\Filesystem
+
+  ar.manager.path:
+    class: AppBundle\Service\PathManager\PathManager
+    arguments: [%ar_banking_permanent_upload_dir%,%ar_banking_temp_upload_dir%,@ar.file_system_provider]
+
+  ar.manager.trackable:
+    class: AppBundle\Service\TrackableManager\TrackableManager
+    arguments: [@file_factory,@ar.file_system_provider,@ar.manager.path,%ar_banking_temp_upload_dir%]
+
+  ar.manager.scene:
+    class: AppBundle\Service\SceneManager\SceneManager
+    arguments: [@file_factory,@ar.file_system_provider,@ar.manager.path,%ar_banking_temp_upload_dir%]
+
+  ar.manager.channel:
+    class: AppBundle\Service\ChannelManager\ChannelManager
+    arguments: [@file_factory,@ar.file_system_provider,@ar.manager.path,%ar_banking_temp_upload_dir%]

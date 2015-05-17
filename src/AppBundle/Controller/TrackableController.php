@@ -4,47 +4,121 @@ namespace AppBundle\Controller;
 
 use AppBundle\Document\Trackable;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class TrackableController extends Controller
 {
     public function addTrackableAction(Request $request,$cname){
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $repos = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel');
-        $channel = $repos->getChannelByName($cname);
-
-
-        $files = $request->files->all();
-        $trackables = [];
-
-
-        $dir= "{$this->container->getParameter('upload_root_dir')}/$cname";
-        $fs = $this->get('file_system_provider');
         /** @var UploadedFile $file */
-        foreach($files as $file){
+        $dm     = $this->get('doctrine_mongodb')->getManager();
 
-            $fileName   = time()."_{$cname}_{$file->getClientOriginalName()}";
+        $repos  = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel');
+        $channel= $repos->getChannelByName($cname);
+        $file = $request->files->get('file',false);
 
-            $fs->copy($file->getRealPath(),"$dir/$fileName");
-
-            $trackable = new Trackable();
-            $trackable->originalName = $file->getClientOriginalName();
-            $trackable->fileName = $fileName;
-            $trackable->rootFolder = $dir;
-
-            $trackables[] = $trackable;
+        if($file === false){
+            return new Response("Parameter 'file' not found",400);
+        }else if(!$channel){
+            return new Response("Channel: $channel not found",400);
+        }else if(!$request->request->get('name')){
+            return new Response("Trackable name not specified",400);
         }
 
-        foreach($trackables as $trackable){
-            $dm->persist($trackable);
-            $channel->trackables->add($trackable);
-        }
+        $trackable = new Trackable();
+        $trackable->description = $request->request->get('description',"");
+        $trackable->name        = $request->request->get('name',"");
+        $trackable->channel     = $channel;
+
+        $dirInfo = $this->get('ar.manager.path')->handleTrackable($trackable);
+
+        $this->get('ar.manager.trackable')->copyToDest(
+            $file->getRealPath(),
+            $dirInfo['rootFolderPath'],
+            $dirInfo['fileName']
+        );
+
+        $dm->persist($trackable);
+        $channel->trackables->add($trackable);
 
         $dm->persist($channel);
         $dm->flush();
 
-        return new JsonResponse('Okidoki');
+        return new JsonResponse([
+            'trackable' => $this->get('ar.manager.trackable')->trackableToArray($trackable)
+        ]);
+    }
+
+    public function getAction($cname,Request $request)
+    {
+        $channel = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel')->getChannelByName($cname);
+        $trackId = $request->query->get('trackable',false);
+        $type    = $request->query->get('as',false);
+        if(!$channel){
+            return new Response("Channel: $channel not found",400);
+        } else if(!$trackId){
+            return new Response("Parameter 'trackable' not specified",400);
+        }
+        $trackable = $this->get('doctrine_mongodb')->getRepository('AppBundle:Trackable')->getTrackableByIdInChannel($trackId,$channel);
+        if($request->query->get('as') == 'json'){
+            return new JsonResponse(
+                $this->get('ar.manager.trackable')->trackableToArray($trackable)
+            );
+        }
+
+        return new BinaryFileResponse(
+            "{$trackable->rootFolder}/{$trackable->fileName}",
+            200,
+            ['Content-Disposition' => "attachment; filename={$trackable->fileOriginalName};"]
+            );
+    }
+
+    public function listTrackablesAction($cname){
+
+        $channel = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel')->getChannelByName($cname);
+        if(!$channel){
+            return new Response("Channel : $cname not found",400);
+        }
+
+        $retVal = $this->get('ar.manager.trackable')->trackableToArray($channel->trackables->toArray());
+        return new JsonResponse($retVal);
+    }
+
+    public function linkToAction($cname,Request $request){
+        $channel = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel')->getChannelByName($cname);
+
+        if(!$channel){
+            return new Response("Channel : $cname not found",400);
+        }
+        if(!$request->request->get('trackable')){
+            return new Response("Parameter 'trackable' not found",400);
+        } else if(!$request->request->get('scene')){
+            return new Response("Parameter 'scene' not found");
+        }
+        $sceneId = $request->request->get('scene');
+        $trackId = $request->request->get('trackable');
+
+        $scene = $this->get('doctrine_mongodb')->getRepository('AppBundle:Scene')->getSceneByIdInChannel($sceneId,$channel);
+        $track = $this->get('doctrine_mongodb')->getRepository('AppBundle:Trackable')->getTrackableByIdInChannel($trackId,$channel);
+
+        if(!$scene){
+            return new Response("Scene: $scene not found",400);
+        }else if(!$track){
+            return new Response("Trackable: $track not found",400);
+        }
+
+        $scene->trackables->add($track);
+        $track->scenes->add($scene);
+
+        $this->get('doctrine_mongodb')->getManager()->persist($scene);
+        $this->get('doctrine_mongodb')->getManager()->persist($track);
+
+        $this->get('doctrine_mongodb')->getManager()->flush();
+
+        return new JsonResponse([]);
+
     }
 }

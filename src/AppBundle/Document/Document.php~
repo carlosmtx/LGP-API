@@ -13,21 +13,13 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
  * @MongoDB\InheritanceType("COLLECTION_PER_CLASS")
  */
 class Document {
-    /**
-     * @MongoDB\Id()
-     */
+    /** @MongoDB\Id() */
     public $id;
-    /**
-     * @MongoDB\Date()
-     */
+    /** @MongoDB\Timestamp() */
     public $createdAt;
-    /**
-     * @MongoDB\Date()
-     */
+    /** @MongoDB\Timestamp() */
     public $updatedAt;
-    /**
-     * @MongoDB\PreUpdate()
-     */
+    /** @MongoDB\PreUpdate()*/
     public function preUpdate(){
         $this->updatedAt = time();
     }

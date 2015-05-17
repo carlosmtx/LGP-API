@@ -18,16 +18,20 @@ class Channel extends Document{
     public $name;
     /** @MongoDB\String() */
     public $description;
-    /** @MongoDB\ReferenceMany(targetDocument="Scene")
+    /** @MongoDB\ReferenceMany(targetDocument="Scene" , cascade={"remove", "persist"})
      *  @var ArrayCollection  $scenes */
     public $scenes ;
-    /** @MongoDB\ReferenceMany(targetDocument="Trackable")
+    /** @MongoDB\ReferenceMany(targetDocument="Trackable", cascade={"remove", "persist"})
      *  @var ArrayCollection  $trackables */
     public $trackables;
+    /** @MongoDB\ReferenceOne(targetDocument="Scene" , cascade={"remove", "persist"})
+     *  @var ArrayCollection  $scenes */
+    public $current;
 
     public function __construct(){
         parent::__construct();
         $this->trackables = new ArrayCollection();
         $this->scenes = new ArrayCollection();
     }
+
 }

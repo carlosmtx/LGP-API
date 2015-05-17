@@ -33,5 +33,54 @@ class ChannelController extends Controller
         return new JsonResponse($channel);
     }
 
+    public function listChannelsAction(){
+        $channels = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel')->findAll();
+        return new JsonResponse($this->get('ar.manager.channel')->channelToArray($channels));
+    }
+
+    public function deleteChannelAction($cname){
+        $channel = $this
+                    ->get('doctrine_mongodb')
+                    ->getRepository('AppBundle:Channel')
+                    ->getChannelByName($cname);
+
+        if(!$channel){
+            return new Response("The channel $cname was not found",400);
+        }
+
+        $this->get('doctrine_mongodb')->getManager()->remove($channel);
+        $this->get('doctrine_mongodb')->getManager()->flush();
+
+        return new JsonResponse([]);
+    }
+
+    public function getCurrentVersionAction($cname ,Request $request)
+    {
+        $channel = $this
+            ->get('doctrine_mongodb')
+            ->getRepository('AppBundle:Channel')
+            ->getChannelByName($cname);
+
+        if(!$channel){
+            return new Response("The channel $cname was not found",400);
+        }
+
+        $current = $channel->current;
+
+        if($request->request->get('as',false) == 'json' ){
+            return new JsonResponse($this->get('ar.manager.trackable')->trackableToArray($current));
+        }
+
+        $filePath = $this->get('ar.manager.scene')->createCurrent($current);
+
+        ///
+
+
+
+        return true;
+
+
+    }
+
 
 }
