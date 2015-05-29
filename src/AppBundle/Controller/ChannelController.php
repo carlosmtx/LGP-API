@@ -12,17 +12,23 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ChannelController extends Controller
 {
-    public function createChannelAction(Request $request,$cname)
+    public function createChannelAction(Request $request)
     {
-        $dm =     $this->get('doctrine_mongodb')->getManager();
+        $dm         = $this->get('doctrine_mongodb')->getManager();
+
+        $name       = $request->request->get('name',false);
+        $description= $request->request->get('description','');
+        $channel    = $dm->getRepository('AppBundle:Channel')->getChannelByName($name);
+
+        if($channel){
+            return new Response("The application $name already exists",400);
+        } else if(!$name){
+            return new Response("Parameter 'name' not found");
+        }
 
         $channel = new Channel();
-        $channel->name = $cname;
-        $channel->description = $request->request->get('description','');
-
-        if(!$channel){
-            return new Response("The channel $cname was not found",400);
-        }
+        $channel->name = $name;
+        $channel->description = $description;
 
         $event = new ChannelCreationEvent($channel);
         $this->get('event_dispatcher')->dispatch(ChannelEvent::ChannelCreation,$event);
@@ -30,7 +36,7 @@ class ChannelController extends Controller
         $dm->persist($channel);
         $dm->flush();
 
-        return new JsonResponse($channel);
+        return new JsonResponse($this->get('ar.manager.channel')->channelToArray($channel));
     }
 
     public function listChannelsAction(){
@@ -45,11 +51,18 @@ class ChannelController extends Controller
                     ->getChannelByName($cname);
 
         if(!$channel){
-            return new Response("The channel $cname was not found",400);
+            return new Response("The application $cname was not found",400);
         }
 
-        $this->get('doctrine_mongodb')->getManager()->remove($channel);
-        $this->get('doctrine_mongodb')->getManager()->flush();
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        foreach($channel->scenes as $scene){
+            $dm->remove($scene);
+        }
+        foreach($channel->trackables as $trackable){
+            $dm->remove($trackable);
+        }
+        $dm->remove($channel);
+        $dm->flush();
 
         return new JsonResponse([]);
     }
@@ -62,7 +75,7 @@ class ChannelController extends Controller
             ->getChannelByName($cname);
 
         if(!$channel){
-            return new Response("The channel $cname was not found",400);
+            return new Response("The application $cname was not found",400);
         }
 
         $current = $channel->current;
@@ -73,14 +86,9 @@ class ChannelController extends Controller
 
         $filePath = $this->get('ar.manager.scene')->createCurrent($current);
 
-        ///
-
-
-
         return true;
 
 
     }
-
 
 }

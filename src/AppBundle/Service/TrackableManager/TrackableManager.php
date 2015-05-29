@@ -68,21 +68,11 @@ class TrackableManager
                 'description' => $trackable->description,
                 'scenes'      => $scenes,
                 'fileName'    => $trackable->fileOriginalName,
-                'createdAt'   => $trackable->createdAt,
-                'updatedAt'   => $trackable->updatedAt
+                'createdAt'   => $trackable->createdAt ?  $trackable->createdAt->format('Y/m/d') : '',
+                'updatedAt'   => $trackable->updatedAt ?  $trackable->updatedAt->format('Y/m/d') : ''
             ];
         }
         return $single ? $retVal[0] : $retVal;
-    }
-
-    public function buildTrackableObject($values)
-    {
-
-    }
-
-    public function addToScene()
-    {
-
     }
 
     public function handlePath($path,Channel $channel)

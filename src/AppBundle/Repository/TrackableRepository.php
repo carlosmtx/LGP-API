@@ -19,10 +19,10 @@ class TrackableRepository extends DocumentRepository
      * @param Channel $channel
      * @return Trackable
      */
-    public function getTrackableByIdInChannel($trackId,Channel $channel){
+    public function getTrackableByIdInChannel($trackId, $channel){
         return $this->findOneBy([
-            'id' => $trackId,
-            'channel.id' => $channel->id
+            'id' => $trackId ?: '',
+            'channel.id' => $channel ? $channel->id : ''
         ]);
     }
 }

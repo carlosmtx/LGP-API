@@ -10,7 +10,6 @@ namespace AppBundle\Service\ChannelManager;
 
 
 use AppBundle\Document\Channel;
-use AppBundle\Document\Scene;
 use AppBundle\Service\FileSystem\FileFactory;
 use AppBundle\Service\PathManager\PathManager;
 use Symfony\Component\Filesystem\Filesystem;
@@ -52,15 +51,16 @@ class ChannelManager {
         if(is_a($channel,Channel::class)){
             $channels= [$channel];
         }
-
+        /** @var Channel $channel */
         foreach($channels as $channel){
             $retVal[] = [
-                'id'        => $channel->id,
-                'name'      => $channel->name,
-                'createdAt' => $channel->createdAt,
-                'updatedAt' => $channel->updatedAt,
-                'trackables'=> $channel->trackables->count(),
-                'scenes'    => $channel->scenes->count()
+                'id'         => $channel->id,
+                'name'       => $channel->name,
+                'description'=> $channel->description,
+                'createdAt'  => $channel->createdAt ? $channel->createdAt->format('Y/m/d') : '',
+                'updatedAt'  => $channel->updatedAt ? $channel->updatedAt->format('Y/m/d') : '',
+                'trackables' => $channel->trackables->count(),
+                'scenes'     => $channel->scenes->count()
             ];
         }
         return $single ? $retVal[0] : $retVal;

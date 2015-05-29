@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TrackableController extends Controller
 {
-    public function addTrackableAction(Request $request,$cname){
+    public function createTrackableAction(Request $request,$cname){
         /** @var UploadedFile $file */
         $dm     = $this->get('doctrine_mongodb')->getManager();
 
@@ -24,16 +24,22 @@ class TrackableController extends Controller
             return new Response("Parameter 'file' not found",400);
         }else if(!$channel){
             return new Response("Channel: $channel not found",400);
-        }else if(!$request->request->get('name')){
+        }else if(!$request->request->get('name',false)){
             return new Response("Trackable name not specified",400);
         }
 
         $trackable = new Trackable();
-        $trackable->description = $request->request->get('description',"");
-        $trackable->name        = $request->request->get('name',"");
-        $trackable->channel     = $channel;
+        $trackable->description     = $request->request->get('description',"");
+        $trackable->name            = $request->request->get('name',"");
+        $trackable->channel         = $channel;
+
+        $trackable->fileOriginalName= $file->getClientOriginalName();
 
         $dirInfo = $this->get('ar.manager.path')->handleTrackable($trackable);
+
+        $trackable->fileName   = $dirInfo['fileName'];
+        $trackable->rootFolder = $dirInfo['rootFolderPath'];
+
 
         $this->get('ar.manager.trackable')->copyToDest(
             $file->getRealPath(),
@@ -63,6 +69,9 @@ class TrackableController extends Controller
             return new Response("Parameter 'trackable' not specified",400);
         }
         $trackable = $this->get('doctrine_mongodb')->getRepository('AppBundle:Trackable')->getTrackableByIdInChannel($trackId,$channel);
+        if(!$trackable){
+            return new Response("Trackable : $trackId not fount in channel: $cname",400);
+        }
         if($request->query->get('as') == 'json'){
             return new JsonResponse(
                 $this->get('ar.manager.trackable')->trackableToArray($trackable)
@@ -87,17 +96,51 @@ class TrackableController extends Controller
         return new JsonResponse($retVal);
     }
 
+    public function deleteTrackableAction($cname,Request $request){
+
+        $trackId   = $request->query->get('trackable','');
+        $channel   = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel')->getChannelByName($cname);
+        $trackable = $this->get('doctrine_mongodb')->getRepository('AppBundle:Trackable')->getTrackableByIdInChannel($trackId,$channel);
+
+
+        if(!$trackId){
+            return new Response("Parameter 'trackable' not found",400);
+        } elseif( !$channel ){
+            return new Response("Channel $cname not found",400);
+        } elseif( !$trackable){
+            return new Response("Trackable: $trackId not found in channel : $cname");
+        }
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $channel->trackables->remove($trackable);
+        $dm->persist($channel);
+
+        foreach($trackable->scenes as $scene){
+            $scene->trackables->remove($trackable);
+            $dm->persist($scene);
+        }
+
+        $dm->remove($trackable);
+
+        $dm->flush();
+
+        return new JsonResponse([]);
+
+    }
+
     public function linkToAction($cname,Request $request){
         $channel = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel')->getChannelByName($cname);
 
         if(!$channel){
             return new Response("Channel : $cname not found",400);
         }
+
         if(!$request->request->get('trackable')){
             return new Response("Parameter 'trackable' not found",400);
         } else if(!$request->request->get('scene')){
             return new Response("Parameter 'scene' not found");
         }
+
         $sceneId = $request->request->get('scene');
         $trackId = $request->request->get('trackable');
 

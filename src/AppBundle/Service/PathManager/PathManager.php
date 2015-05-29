@@ -60,7 +60,6 @@ class PathManager {
         return [
             'fileName'         => time()."_{$this->generateUniqueRandom()}",
             'rootFolderPath'   => "$channelDir/".PathManager::TRACKABLE."",
-            'fullPath'         => "$channelDir/".PathManager::TRACKABLE."/".time()
         ];
     }
 

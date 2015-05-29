@@ -11,8 +11,6 @@ use AppBundle\Document\Channel;
 use AppBundle\Document\Scene;
 use AppBundle\Document\Trackable;
 use AppBundle\Service\FileSystem\FileFactory;
-use AppBundle\Service\FileSystem\FileManager;
-use AppBundle\Service\FileSystem\FileType\Compressed\Compressed;
 use AppBundle\Service\PathManager\PathManager;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
@@ -151,8 +149,8 @@ class SceneManager {
             $retVal[] =[
                 'id' => $scene->id,
                 'description'=> $scene->description,
-                'createdAt'  => $scene->createdAt,
-                'updatedAt'  => $scene->updatedAt,
+                'createdAt'  => $scene->createdAt ? $scene->createdAt->format('Y/m/d') : '',
+                'updatedAt'  => $scene->updatedAt ? $scene->updatedAt->format('Y/m/d') : '',
                 'trackables' => $trackables
             ];
         }

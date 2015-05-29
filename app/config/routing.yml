@@ -1,11 +1,10 @@
-
 channel_list:
-  path: /channel
+  path: /channels
   defaults: { _controller: AppBundle:Channel:listChannels }
   methods: [GET]
 
 channel_create:
-  path: /channel/{cname}
+  path: /channel
   defaults: { _controller: AppBundle:Channel:createChannel }
   methods: [POST]
 
@@ -22,11 +21,17 @@ channel_current:
 
 trackable_create:
   path: /channel/{cname}/trackable
-  defaults: { _controller: AppBundle:Trackable:addTrackable }
+  defaults: { _controller: AppBundle:Trackable:createTrackable }
   methods: [POST]
 
+trackable_delete:
+  path: /channel/{cname}/trackable
+  defaults: { _controller: AppBundle:Trackable:deleteTrackable }
+  methods: [DELETE]
+
+
 trackable_list:
-  path: /channel/{cname}/trackable/list
+  path: /channel/{cname}/trackables
   defaults: { _controller: AppBundle:Trackable:listTrackables }
   methods: [GET]
 

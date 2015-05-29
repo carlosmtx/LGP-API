@@ -6,6 +6,7 @@
  */
 namespace AppBundle\Document;
 
+use DateTime;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 
 /**
@@ -19,19 +20,21 @@ class Document {
     public $id;
     /**
      * @MongoDB\Date()
+     * @var DateTime
      */
     public $createdAt;
     /**
      * @MongoDB\Date()
+     * @var DateTime
      */
     public $updatedAt;
     /**
      * @MongoDB\PreUpdate()
      */
     public function preUpdate(){
-        $this->updatedAt = time();
+        $this->updatedAt = new DateTime();
     }
     public function __construct(){
-        $this->createdAt = time();
+        $this->createdAt = new DateTime();
     }
 }
