@@ -1,3 +1,15 @@
+
+api_login:
+  path: /login
+  defaults: { _controller: AppBundle:Login:login}
+  methods: [POST]
+
+api_logout:
+  path: /logout
+  defaults: { _controller: AppBundle:Login:login}
+  methods: [GET]
+
+
 channel_list:
   path: /channels
   defaults: { _controller: AppBundle:Channel:listChannels }
@@ -17,10 +29,41 @@ channel_current:
   path: /channel/{cname}/current
   defaults: { _controller: AppBundle:Channel:getCurrentVersion }
   methods: [GET]
+
 channel_current_set:
   path: /channel/{cname}/current
   defaults: { _controller: AppBundle:Channel:setCurrentVersion }
   methods: [POST]
+
+scene_create:
+  path: /channel/{cname}/scene
+  defaults: { _controller: AppBundle:Scene:createScene }
+  methods: [POST]
+
+scene_delete:
+  path: /channel/{cname}/scene
+  defaults: { _controller: AppBundle:Scene:deleteScene }
+  methods: [DELETE]
+
+scene_list:
+  path: /channel/{cname}/scenes
+  defaults: { _controller: AppBundle:Scene:listScene }
+  methods: [GET]
+
+scene_get:
+  path: /channel/{cname}/scene
+  defaults: { _controller: AppBundle:Scene:get }
+  methods: [GET]
+
+scene_link_trackable:
+  path: /channel/{cname}/scene/link
+  defaults: { _controller: AppBundle:Trackable:linkTo }
+  methods: [POST]
+
+
+
+
+
 
 trackable_create:
   path: /channel/{cname}/trackable
@@ -51,32 +94,6 @@ trackable_link_scene:
 
 
 
-
-
-scene_create:
-  path: /channel/{cname}/scene
-  defaults: { _controller: AppBundle:Scene:createScene }
-  methods: [POST]
-
-scene_delete:
-  path: /channel/{cname}/scene
-  defaults: { _controller: AppBundle:Scene:deleteScene }
-  methods: [DELETE]
-
-scene_list:
-  path: /channel/{cname}/scenes
-  defaults: { _controller: AppBundle:Scene:listScene }
-  methods: [GET]
-
-scene_get:
-  path: /channel/{cname}/scene
-  defaults: { _controller: AppBundle:Scene:get }
-  methods: [GET]
-
-scene_link_trackable:
-  path: /channel/{cname}/scene/link
-  defaults: { _controller: AppBundle:Trackable:linkTo }
-  methods: [POST]
 
 
 

@@ -18,7 +18,8 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
-    upload_root_dir: /var/files
-    upload_root_dir: /var/files
-    temp_root_dir: /var/tmp
+    ar_banking_permanent_upload_dir: /var/files
+    ar_banking_temp_upload_dir: /var/tmp
+    api_user: admin
+    api_pass: admin
 

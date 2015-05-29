@@ -61,11 +61,17 @@ All the parameteres enclosed between {} are variable
 
         description: String | [Optional] a description of the scene
 
-- /channel/{cname}/scene [POST]
+- /channel/{cname}/scene [DELETE]
 
         Deletes a scene associated with the channel cname
         
         Parameters:
         
-        scene : String | [Obligatory] the scene id to be deleted
+        scene : String | [Obligatory] the scene id to be deleted (must be used as a query parameter:
+            Example: /channel/{cname}/scene?scene=55686771fa46343c058b4569
         
+- /channel/{cname}/scenes [GET]
+
+        Deletes a scene associated with the channel cname
+
+- /channel/{cname}/
