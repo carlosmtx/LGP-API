@@ -112,14 +112,14 @@ class TrackableController extends Controller
         }
         $dm = $this->get('doctrine_mongodb')->getManager();
 
-        $channel->trackables->remove($trackable);
-        $dm->persist($channel);
 
         foreach($trackable->scenes as $scene){
-            $scene->trackables->remove($trackable);
+            $scene->trackables->removeElement($trackable);
             $dm->persist($scene);
         }
 
+        $channel->trackables->removeElement($trackable);
+        $dm->persist($channel);
         $dm->remove($trackable);
 
         $dm->flush();

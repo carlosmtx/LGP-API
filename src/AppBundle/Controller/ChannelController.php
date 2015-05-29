@@ -56,10 +56,10 @@ class ChannelController extends Controller
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         foreach($channel->scenes as $scene){
-            $dm->remove($scene);
+            $dm->removeElement($scene);
         }
         foreach($channel->trackables as $trackable){
-            $dm->remove($trackable);
+            $dm->removeElement($trackable);
         }
         $dm->remove($channel);
         $dm->flush();
