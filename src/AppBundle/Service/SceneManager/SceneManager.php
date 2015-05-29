@@ -148,10 +148,12 @@ class SceneManager {
             }
             $retVal[] =[
                 'id' => $scene->id,
+                'name' => $scene->name,
                 'description'=> $scene->description,
                 'createdAt'  => $scene->createdAt ? $scene->createdAt->format('Y/m/d') : '',
-                'updatedAt'  => $scene->updatedAt ? $scene->updatedAt->format('Y/m/d') : '',
-                'trackables' => $trackables
+                'updatedAt'  => $scene->updatedAt ? $scene->updatedAt->format('Y/m/d H:m:s') : '',
+                'trackables' => $trackables,
+                'current'    => $scene->channel->current ?  $scene->channel->current->id == $scene->id : false
             ];
         }
         return $retVal;

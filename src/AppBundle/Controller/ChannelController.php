@@ -6,6 +6,7 @@ use AppBundle\Document\Channel;
 use AppBundle\Event\Channel\ChannelCreationEvent;
 use AppBundle\Event\Channel\ChannelEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,6 +45,32 @@ class ChannelController extends Controller
         return new JsonResponse($this->get('ar.manager.channel')->channelToArray($channels));
     }
 
+    public function setCurrentVersionAction($cname,Request $request)
+    {
+        $dm         = $this->get('doctrine_mongodb')->getManager();
+
+        $sceneId    = $request->request->get('scene',false);
+        $description= $request->request->get('description','');
+        $channel    = $dm->getRepository('AppBundle:Channel')->getChannelByName($cname);
+        $scene      = $dm->getRepository('AppBundle:Scene')->getSceneByIdInChannel($sceneId,$channel);
+        if(!$channel){
+            return new Response("Channel $cname not found",400);
+        } else if(!$sceneId){
+            return new Response("Parameter 'scene' not found");
+        } else if (!$scene){
+            return new Response("Scene : $sceneId not found");
+        }
+
+        $channel->current = $scene;
+        $scene->preUpdate();
+        $dm->persist($channel);
+        $dm->persist($scene);
+
+        $dm->flush();
+
+        return new JsonResponse($this->get('ar.manager.channel')->channelToArray($channel));
+    }
+
     public function deleteChannelAction($cname){
         $channel = $this
                     ->get('doctrine_mongodb')
@@ -56,10 +83,11 @@ class ChannelController extends Controller
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         foreach($channel->scenes as $scene){
-            $dm->removeElement($scene);
+            $dm->remove($scene);
+
         }
         foreach($channel->trackables as $trackable){
-            $dm->removeElement($trackable);
+            $dm->remove($trackable);
         }
         $dm->remove($channel);
         $dm->flush();
@@ -80,15 +108,19 @@ class ChannelController extends Controller
 
         $current = $channel->current;
 
-        if($request->request->get('as',false) == 'json' ){
-            return new JsonResponse($this->get('ar.manager.trackable')->trackableToArray($current));
+        if(!$current){
+            return new Response("The application $cname does not have a default version",400);
         }
 
-        $filePath = $this->get('ar.manager.scene')->createCurrent($current);
+        if($request->query->get('as',false) == 'json' ){
+            return new JsonResponse($this->get('ar.manager.scene')->sceneToArray($current));
+        }
 
-        return true;
-
-
+        return new BinaryFileResponse(
+            "{$current->rootFolder}/{$current->fileName}",
+            200,
+            ['Content-Disposition' => "attachment; filename=current.zip;"]
+        );
     }
 
 }

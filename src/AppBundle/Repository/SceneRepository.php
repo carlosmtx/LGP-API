@@ -19,10 +19,10 @@ class SceneRepository extends DocumentRepository
      * @param Channel $channel
      * @return Scene
      */
-    public function getSceneByIdInChannel($sceneId,Channel $channel){
+    public function getSceneByIdInChannel($sceneId,$channel){
         return $this->findOneBy([
             'id' => $sceneId,
-            'channel.id' => $channel->id
+            'channel.id' => $channel ? $channel->id : ''
         ]);
     }
 }

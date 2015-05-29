@@ -29,12 +29,14 @@ class Document {
      */
     public $updatedAt;
     /**
-     * @MongoDB\PreUpdate()
+     * @MongoDB\PrePersist()
      */
     public function preUpdate(){
         $this->updatedAt = new DateTime();
     }
+
     public function __construct(){
         $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
     }
 }

@@ -19,18 +19,22 @@ class SceneController extends Controller
         $channel = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel')->getChannelByName($cname);
         $sceneId = $request->query->get('scene', false);
         $type = $request->query->get('as', false);
+        $scene = $this->get('doctrine_mongodb')->getRepository('AppBundle:Scene')->getSceneByIdInChannel($sceneId, $channel);
 
         if (!$channel) {
             return new Response("Channel: $channel not found", 400);
         } else if (!$sceneId) {
-            return new Response("Parameter 'trackable' not specified", 400);
+            return new Response("Parameter 'scene' not specified", 400);
+        } else if (!$scene){
+            return new Response("Scene: $sceneId not found", 400);
         }
-        $scene = $this->get('doctrine_mongodb')->getRepository('AppBundle:Scene')->getSceneByIdInChannel($sceneId, $channel);
+
         if ($type == 'json') {
             return new JsonResponse(
                 $this->get('ar.manager.scene')->sceneToArray($scene)
             );
         }
+
         return new BinaryFileResponse(
             "{$scene->rootFolder}/{$scene->fileName}",
             200,
@@ -53,24 +57,25 @@ class SceneController extends Controller
     {
         /** @var UploadedFile $file */
 
-        $repos = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel');
-        $channel = $repos->getChannelByName($cname);
-        $file = $request->files->get('file', false);
-        $name = $request->request->get('scene', false);
-        $description = $request->files->get('descritpion', '');
+        $repos       = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel');
+        $channel     = $repos->getChannelByName($cname);
+        $file        = $request->files->get('file', false);
+        $name        = $request->request->get('name', false);
+        $description = $request->request->get('description', '');
 
         if ($file === false) {
             return new Response("Parameter 'file' was not specified", 400);
         } else if (!$channel) {
             return new Response("Channel : $cname was not found", 400);
         } else if (!$name) {
-            return new Response("Parameter 'scene' was not found", 400);
+            return new Response("Parameter 'name' was not found", 400);
         }
+
         $scene = $this->get('ar.manager.scene')->handleRequest($request, $channel);
-        $scene->name = $name;
-        $scene->description = $description;
 
         $dirInfo = $this->get('ar.manager.path')->handleScene($scene);
+        $scene->name = $name;
+        $scene->description = $description;
         $scene->rootFolder = $dirInfo['rootFolderPath'];
         $scene->fileName = $dirInfo['fileName'];
 
@@ -96,6 +101,8 @@ class SceneController extends Controller
 
             $trackables[] = $trackable;
         }
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
         /** @var Trackable $trackable */
         foreach ($trackables as $key => $trackable) {
             $trackable->scenes->add($scene);
@@ -104,7 +111,6 @@ class SceneController extends Controller
             $trackable->name = "{$scene->name}_$key";
         }
 
-        $dm = $this->get('doctrine_mongodb')->getManager();
 
         foreach ($trackables as $trackable) {
             $dm->persist($trackable);
@@ -115,7 +121,7 @@ class SceneController extends Controller
         $dm->flush();
 
         return new JsonResponse([
-            'scene' => $scene,
+            'scene' => $this->get('ar.manager.scene')->sceneToArray($scene),
             'trackables' => $this->get('ar.manager.trackable')->trackableToArray($trackables)
         ]);
     }
@@ -124,29 +130,29 @@ class SceneController extends Controller
     public function deleteSceneAction(Request $request,$cname){
 
         $channel = $this->get('doctrine_mongodb')->getRepository('AppBundle:Channel')->getChannelByName($cname);
-        $scene   = $request->request->get('scene',false);
+        $scene   = $request->query->get('scene',false);
         $sceneO  = $this->get('doctrine_mongodb')->getRepository('AppBundle:Scene')->getSceneByIdInChannel($scene,$channel);
 
         if(!$channel){
             return new Response("Channel: $cname was not found",400);
         }else if(!$scene){
-            return new Response("Paramenter 'scene' was not found",400);
+            return new Response("Parameter 'scene' was not found",400);
         }else if(!$sceneO){
             return new Response("Scene: $scene was not found",400);
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $channel->scenes->remove($scene);
         /** @var Trackable $trackable */
         foreach($sceneO->trackables as $trackable){
-            $trackable->scenes->remove($scene);
+            $trackable->scenes->removeElement($sceneO);
             $dm->persist($trackable);
         }
-        $dm->remove($scene);
+        $channel->scenes->removeElement($sceneO);
+        $dm->remove($sceneO);
         $dm->persist($channel);
         $dm->flush();
 
-        return new JsonResponse($scene);
+        return new JsonResponse([]);
 
     }
 }

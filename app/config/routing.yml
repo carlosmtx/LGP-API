@@ -17,7 +17,10 @@ channel_current:
   path: /channel/{cname}/current
   defaults: { _controller: AppBundle:Channel:getCurrentVersion }
   methods: [GET]
-
+channel_current_set:
+  path: /channel/{cname}/current
+  defaults: { _controller: AppBundle:Channel:setCurrentVersion }
+  methods: [POST]
 
 trackable_create:
   path: /channel/{cname}/trackable
@@ -55,6 +58,11 @@ scene_create:
   defaults: { _controller: AppBundle:Scene:createScene }
   methods: [POST]
 
+scene_delete:
+  path: /channel/{cname}/scene
+  defaults: { _controller: AppBundle:Scene:deleteScene }
+  methods: [DELETE]
+
 scene_list:
   path: /channel/{cname}/scenes
   defaults: { _controller: AppBundle:Scene:listScene }
@@ -71,13 +79,4 @@ scene_link_trackable:
   methods: [POST]
 
 
-
-
-
-
-
-
-deletable:
-  path: /exp
-  defaults: { _controller: AppBundle:Deletable:index }
 

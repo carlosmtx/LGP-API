@@ -18,10 +18,9 @@ class Scene extends Document{
     public $rootFolder;
     /** @MongoDB\String() */
     public $fileName;
-    /**@MongoDB\String() */
+    /** @MongoDB\String() */
     public $fileOriginalName;
-
-    /**@MongoDB\String() */
+    /** @MongoDB\String() */
     public $description;
     /** @MongoDB\ReferenceMany(targetDocument="Trackable")
      *  @var ArrayCollection  $trackables */

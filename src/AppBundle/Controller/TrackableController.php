@@ -117,11 +117,9 @@ class TrackableController extends Controller
             $scene->trackables->removeElement($trackable);
             $dm->persist($scene);
         }
-
         $channel->trackables->removeElement($trackable);
-        $dm->persist($channel);
         $dm->remove($trackable);
-
+        $dm->persist($channel);
         $dm->flush();
 
         return new JsonResponse([]);

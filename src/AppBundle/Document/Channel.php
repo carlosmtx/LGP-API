@@ -25,7 +25,7 @@ class Channel extends Document{
      *  @var ArrayCollection  $trackables */
     public $trackables;
     /** @MongoDB\ReferenceOne(targetDocument="Scene" , cascade={"remove", "persist"})
-     *  @var ArrayCollection  $scenes */
+     *  @var Scene  $current */
     public $current;
 
     public function __construct(){
