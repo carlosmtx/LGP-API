@@ -10,6 +10,7 @@ namespace AppBundle\Service\FileSystem\FileType;
 
 
 use AppBundle\Service\FileSystem\FileFactory;
+use AppBundle\Service\FileSystem\FileType\Compressed\ZipFile;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Intl\Exception\NotImplementedException;
 
@@ -54,10 +55,11 @@ abstract class File{
     function compressTo($type = File::ZIP,$dest = false){
         $dest = $dest ?: $this->tmpDir;
         switch($type){
-            case File::ZIP :
-                return new ZipFile($this->filePath,$this->fs,$this->tmpDir,$this->fileFactory);
+            case FileFactory::ZIP :
+                $file = new ZipFile($this->srcPath,$this->fs,$this->tmpDir,$this->fileFactory);
+                return $file->compress($dest);
                 break;
-            case File::RAR :
+            case FileFactory::RAR :
                 throw new NotImplementedException("Rar file compression not yet implemented");
                 break;
         }

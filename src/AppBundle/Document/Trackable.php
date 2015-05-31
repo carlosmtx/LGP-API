@@ -38,6 +38,10 @@ class Trackable extends Document{
      * @MongoDB\ReferenceOne(targetDocument="Channel")
      */
     public $channel;
+    /**
+     * @MongoDB\Boolean()
+     */
+    public $isDefault;
 
     public function __construct(){
         parent::__construct();

@@ -32,11 +32,9 @@ class ZipFile extends Compressed{
         $zipper->close();
     }
 
-    function compress()
+    function compress($path)
     {
-        $destPath = $this->tmpDir.'/'.time().'.zip';
-        exec("cd {$this->filePath} && zip -r $destPath *");
-        return new File($destPath);
+        return exec("cd {$this->srcPath} && zip -r $path *");
     }
 
     function remove($path = false)

@@ -50,7 +50,7 @@ services:
 
   ar.manager.scene:
     class: AppBundle\Service\SceneManager\SceneManager
-    arguments: [@file_factory,@ar.file_system_provider,@ar.manager.path,%ar_banking_temp_upload_dir%]
+    arguments: [@file_factory,@ar.file_system_provider,@ar.manager.path,%ar_banking_temp_upload_dir%,@twig]
 
   ar.manager.channel:
     class: AppBundle\Service\ChannelManager\ChannelManager

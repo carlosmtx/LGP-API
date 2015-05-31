@@ -27,6 +27,10 @@ class SceneManager {
      * @var PathManager
      */
     private $pathManager;
+    /**
+     * @var \Twig_Environment
+     */
+    private $twig;
 
     /**
      * @param FileFactory $fileFactory
@@ -34,11 +38,12 @@ class SceneManager {
      * @param PathManager $pathManager
      * @param $tmpDir
      */
-    public function __construct(FileFactory $fileFactory,Filesystem $provider,PathManager $pathManager,$tmpDir){
+    public function __construct(FileFactory $fileFactory,Filesystem $provider,PathManager $pathManager,$tmpDir,$twig){
         $this->fileFactory  = $fileFactory;
         $this->tempDir      = $tmpDir;
         $this->provider     = $provider;
         $this->pathManager  = $pathManager;
+        $this->twig         = $twig;
     }
 
     public function __destruct(){
@@ -46,10 +51,10 @@ class SceneManager {
             $this->provider->remove($dirs);
         }
     }
-    private function extractToTempDir(Scene $scene){
-        $file = $this->fileFactory->get("{$scene->rootFolder}/{$scene->fileName}",FileFactory::ZIP);
+    private function extractToTempDir($path){
+        $file = $this->fileFactory->get("$path",FileFactory::ZIP);
 
-        $path = "{$this->tempDir}/_".time();
+        $path = $this->pathManager->getTempDir();
         $this->provider->mkdir($path);
         $file->extractTo($path);
 
@@ -57,31 +62,139 @@ class SceneManager {
         return $path;
     }
 
-    private function getTrackablesXMLPath($rootPath){
-        $xml = simplexml_load_file("$rootPath/index.xml");
+
+    private function getIndexXMLPath($path){
+        if(is_file("$path/index.xml")){
+            return "$path/index.xml";
+        }else{
+            $folder = scandir($path)[0];
+            return "$folder/index.xml";
+        }
     }
 
 
 
 
 
-    public function createCurrent(Scene $current)
+    public function createCurrent(Scene $scene)
     {
-        $dir = $this->getDefaultTrackables($current);
+        $extractedSceneRoot = $this->extractToTempDir("{$scene->rootFolder}/{$scene->fileName}");
+        $indexXMLPath       = $this->getIndexXMLPath($extractedSceneRoot);
+        $indexXML           = simplexml_load_file($indexXMLPath);
+        $objects            = $indexXML->xpath('/results/object//@id');
+        $objectsXML         = $indexXML->xpath('//object');
+        $count = 0;
+        foreach($scene->trackables as $trackable){
+            if($trackable->isDefault){
+                $count++;
+            }
+        }
+        $count +=1;
+        $i = $count;
+        $newObjects = [];
+        foreach($scene->trackables as $trackable){
+            if($trackable->isDefault) continue;
+            foreach($objectsXML as $objectXML){
+                $newNode = dom_import_simplexml($objectXML)->cloneNode(true);
+                $newNode = simplexml_import_dom($newNode);
+                $newNode->assets3d->properties->coordinatesystemid= $i;
+                $newNode->attributes()['id'] = $newNode->attributes()['id'] . "_arbankingobject_$i";
+                $newObjects[] = $newNode;
+            }
+            $i++;
+        }
 
-        $trackables = $current->trackables;
 
-        $result = glob("$dir/*.xml");
+        $trackingXMLPath = dirname($indexXMLPath)."/" . $indexXML->xpath('/results//@trackingurl')[0]->trackingurl.'';
+        $trackingXMLPathDecompressed = $this->extractToTempDir($trackingXMLPath);
+        $trackingXML = simplexml_load_file($trackingXMLPathDecompressed .'/Tracking.xml');
+        $i = $count;
+        $newSensors = [];
+        $newCOS     = [];
+        foreach($scene->trackables as $trackable){
+            if($trackable->isDefault) continue;
+            $sensorCOS  = $this->twig->render('sensor_cos.xml.twig',['index' => $i,'filename' => $trackable->fileOriginalName]);
+            $COS        = $this->twig->render('cos.xml.twig',['index' => $i,'filename' => $trackable->fileOriginalName]);
+            $newSensors[] = simplexml_load_string($sensorCOS);
+            $newCOS[]     = simplexml_load_string($COS);
+            $i++;
+        }
+
+        $logicJSPath = dirname($indexXMLPath)."/html/arel/js/logic.js";
+
+        $logicJS = file_get_contents($logicJSPath);
+
+        $newJSContent = "var initialContent  = scenario.contents.slice();var avObjects=[";
+        foreach($objects as $object){
+            $newJSContent .= "'".$object->__toString()."',";
+        }
+        $newJSContent .= "];";
+        $i = $count;
+        foreach($scene->trackables as $trackable){
+            if($trackable->isDefault ) continue;
+            $newJSContent .= $this->twig->render('logic.js.twig',['index'=>$i]);
+            $i++;
+        }
+        $newJSContent .= 'scenario.onStartup();';
+        $logicJS = preg_replace('/scenario\.onStartup\(\);/',$newJSContent,$logicJS);
 
 
+        $indexXML = dom_import_simplexml($indexXML);
+        foreach($newObjects as $object){
+            $node = dom_import_simplexml($object);
+            $indexXML->appendChild($node);
+        }
 
 
-        return $dir;
+        $trackingXML = dom_import_simplexml($trackingXML);
+        foreach($newSensors as $sensor){
+            $node = dom_import_simplexml($sensor);
+            $node = $trackingXML->ownerDocument->importNode($node,true);
+            $trackingXML->getElementsByTagName('Sensor')->item(0)->appendChild($node);
+        }
+        foreach($newCOS as $cos){
+            $node = dom_import_simplexml($cos);
+            $node = $trackingXML->ownerDocument->importNode($node,true);
+            $trackingXML->getElementsByTagName('Connections')->item(0)->appendChild($node);
+        }
+
+        /** @var Trackable $trackable */
+        foreach($scene->trackables as $trackable){
+            if($trackable->isDefault) continue;
+            $path = "{$trackable->rootFolder}/{$trackable->fileName}";
+            $this->provider->copy($path,"$trackingXMLPathDecompressed/{$trackable->fileOriginalName}");
+        }
+
+        $trackingXML = simplexml_import_dom($trackingXML);
+        $indexXML = simplexml_import_dom($indexXML);
+
+        $rootPath = dirname($indexXMLPath);
+        $finalLogicJs = fopen("$rootPath/html/arel/js/logic.js",'w+');
+        $finalIndexXml= fopen("$rootPath/index.xml",'w+');
+
+        $finalTrackXml= fopen("$trackingXMLPathDecompressed/Tracking.xml",'w+');
+
+
+        fwrite($finalLogicJs ,$logicJS);fclose($finalLogicJs );
+        fwrite($finalIndexXml,$indexXML->saveXML());fclose($finalIndexXml);
+        fwrite($finalTrackXml,$trackingXML->saveXML());fclose($finalTrackXml);
+
+        unlink($rootPath .  "/" . $indexXML->xpath('/results//@trackingurl')[0]->trackingurl);
+        $zipTrackConfig = $this->fileFactory->get($trackingXMLPathDecompressed ,FileFactory::ZIP);
+
+        $zipTrackConfig->compressTo(FileFactory::ZIP,$rootPath .  "/" . $indexXML->xpath('/results//@trackingurl')[0]->trackingurl);
+
+
+        $destFolder  = $this->pathManager->getTempDir().'/current.zip';
+        $currentFile = $this->fileFactory->get($extractedSceneRoot,FileFactory::ZIP);
+        $currentFile->compressTo(FileFactory::ZIP,$destFolder);
+
+        return $destFolder;
     }
 
     public function getDefaultTrackables(Scene $scene){
 
-        $path = $this->extractToTempDir($scene);
+        $path = $this->extractToTempDir("{$scene->rootFolder}/{$scene->fileName}");
         if(!is_dir("$path/html/resources")){
             //TODO: Throw   error
         }

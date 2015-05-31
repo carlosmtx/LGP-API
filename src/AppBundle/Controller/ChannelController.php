@@ -115,9 +115,9 @@ class ChannelController extends Controller
         if($request->query->get('as',false) == 'json' ){
             return new JsonResponse($this->get('ar.manager.scene')->sceneToArray($current));
         }
-
+        $current = $this->get('ar.manager.scene')->createCurrent($current);
         return new BinaryFileResponse(
-            "{$current->rootFolder}/{$current->fileName}",
+            "$current",
             200,
             ['Content-Disposition' => "attachment; filename=current.zip;"]
         );

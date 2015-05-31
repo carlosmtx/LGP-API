@@ -1,0 +1,55 @@
+var arObjects_t{{index}} = [];
+
+for(var i = 0 ; i < initialContent.length ; i++){
+    var obj;
+    if(avObjects.indexOf(initialContent[i].objectName) > -1){
+        obj = arel.Scene.getObject(initialContent[i].objectName + '_arbankingobject_{{index}}');
+        obj.objectName          =  initialContent[i].objectName + '_arbankingobject_{{index}}';
+        obj.scene               =  initialContent[i].scene;
+        obj.displayOnLoaded     =  initialContent[i].displayOnLoaded;
+        obj.setScene            =  initialContent[i].setScene;
+        obj.isLoaded            =  initialContent[i].isLoaded;
+        obj.bind                =  initialContent[i].bind;
+        obj.load                =  initialContent[i].load;
+        obj.load                =  initialContent[i].unload;
+        obj.display             =  initialContent[i].display;
+        obj.hide                =  initialContent[i].hide;
+        obj.attach              =  initialContent[i].attach;
+        obj.play                =  initialContent[i].play;
+        obj.onLoaded            =  initialContent[i].onLoaded;
+        obj.associatedTrackable =  ar_pattern_{{index}};
+        scenario.registerObject(obj);
+        scenario.contents.push(obj);
+        arObjects_t{{index}}.push(obj);
+    } else {
+        //obj = Object.create(scenario.contents[i]);
+        //obj.associatedTrackable = ar_pattern_{{index}};
+    }
+
+}
+var ar_pattern_{{index}} = {};
+scenario.trackables.push(ar_pattern_{{index}});
+ar_pattern_{{index}}.objectName = "arbankingtrackable_{{index}}";
+ar_pattern_{{index}}.cosName = "arbankingtrackable_{{index}}";
+ar_pattern_{{index}}.cosID = "{{index}}";
+ar_pattern_{{index}}.isCurrentlyTracking = false;
+ar_pattern_{{index}}.currentTrackingValues = null;
+ar_pattern_{{index}}.onTracked = function (trackingValues) {
+    arel.Debug.log(this.objectName + ".onTracked()");
+    this.isCurrentlyTracking = true;
+    this.currentTrackingValues = trackingValues;
+    arel.Debug.log("Length:" + arObjects_t{{index}}.length);
+    for(var i = 0 ; i < arObjects_t{{index}}.length ; i++){
+        arel.Debug.log("Displaying : index:" + i + ", Object: " + arObjects_t{{index}}[i].objectName);
+        arObjects_t{{index}}[i].display();
+    }
+};
+
+ar_pattern_{{index}}.onTrackingLost = function (trackingValues) {
+    arel.Debug.log(this.objectName + ".onTrackingLost()");
+    this.isCurrentlyTracking = false;
+    this.currentTrackingValues = null;
+    for(var i = 0 ; i < arObjects_{{index}}.length ; i++){
+        arObjects_{{index}}[i].hide();
+    }
+};

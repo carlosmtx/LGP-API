@@ -109,6 +109,7 @@ class SceneController extends Controller
             $scene->trackables->add($trackable);
             $trackable->description = "Trackable provided by scene {$scene->name}";
             $trackable->name = "{$scene->name}_$key";
+            $trackable->isDefault = true;
         }
 
 
